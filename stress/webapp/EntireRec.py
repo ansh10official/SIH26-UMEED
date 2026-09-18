@@ -1,23 +1,23 @@
-from scipy.signal import butter, lfilter
-import torch
 import os
-import torch
-import numpy as np
-import torch.nn.parallel
-import torch.optim
-import torch.utils.data
-import torchvision.transforms as transforms
+import re
+import warnings
+
+import matplotlib
+matplotlib.use('Agg')            # headless backend: safe inside a Flask worker thread
 import matplotlib.pyplot as plt
+
+import cv2
+import numpy as np
+import seaborn as sns
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torchvision.transforms as transforms
 from PIL import Image
-import seaborn as sns
-import warnings
-from keras.models import load_model
-warnings.filterwarnings("ignore")
-import torch.nn.functional as F
-from torch.autograd import Variable
+
 from Common import *
+
+warnings.filterwarnings("ignore")
 
 cfg = {
     'VGG11': [64, 'M', 128, 'M', 256, 256, 'M', 512, 512, 'M', 512, 512, 'M'],
@@ -25,6 +25,7 @@ cfg = {
     'VGG16': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M'],
     'VGG19': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 256, 'M', 512, 512, 512, 512, 'M', 512, 512, 512, 512, 'M'],
 }
+
 
 class VGG(nn.Module):
     def __init__(self, vgg_name):
@@ -52,107 +53,109 @@ class VGG(nn.Module):
                 in_channels = x
         layers += [nn.AvgPool2d(kernel_size=1, stride=1)]
         return nn.Sequential(*layers)
-    
+
+
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-# model = ConvNet().to(device)
+
+# model.t7 is expected next to this file (not relative to wherever the server was started)
+MODEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "model.t7")
+CLASS_NAMES = ['Anger', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
+
+_net = None
+
+
+def _load_net():
+    """Load the emotion network once and reuse it for every request."""
+    global _net
+    if _net is None:
+        try:
+            checkpoint = torch.load(MODEL_PATH, map_location=device)
+        except Exception:
+            # Newer PyTorch refuses to unpickle extra objects by default.
+            # Only do this because model.t7 is your own trusted file.
+            checkpoint = torch.load(MODEL_PATH, map_location=device, weights_only=False)
+        net = VGG('VGG19')
+        net.load_state_dict(checkpoint['net'])
+        net.to(device)
+        net.eval()
+        _net = net
+    return _net
+
+
+def _natural_key(name):
+    # frame2.jpg must come before frame10.jpg
+    return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', name)]
+
 
 def getSizes(directory):
-  for file in os.listdir(directory):
-    if os.path.isfile(os.path.join(directory, file)):
-      f_img = os.path.join(directory, file)
-      img = Image.open(f_img)
-      # img = img.resize((227,227))
-      img =  cv2.resize(np.array(img), dsize=(227, 227), interpolation=cv2.INTER_CUBIC)
+    for file in os.listdir(directory):
+        f_img = os.path.join(directory, file)
+        if os.path.isfile(f_img):
+            img = Image.open(f_img).convert('RGB')
+            img = cv2.resize(np.array(img), dsize=(227, 227), interpolation=cv2.INTER_CUBIC)
+            img = Image.fromarray(img.astype(np.uint8))
+            img.save(f_img)
 
-      img = Image.fromarray(img.astype(np.uint8))
-      img.save(f_img)
 
 def getEmotions(directory):
-  def rgb2gray(rgb):
-    return np.dot(rgb[...,:3], [0.299, 0.587, 0.114])
+    def rgb2gray(rgb):
+        return np.dot(rgb[..., :3], [0.299, 0.587, 0.114])
 
-  predictionList_num = []
-  cut_size = 44
-  device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-  transform_test = transforms.Compose([
-    transforms.TenCrop(cut_size),
-    transforms.Lambda(lambda crops: torch.stack([transforms.ToTensor()(crop) for crop in crops])),
-  ])
+    cut_size = 44
+    transform_test = transforms.Compose([
+        transforms.TenCrop(cut_size),
+        transforms.Lambda(lambda crops: torch.stack([transforms.ToTensor()(crop) for crop in crops])),
+    ])
 
-  predictionList_name = []
-  class_names = ['Anger', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
-  data = []
-  predictionList_num = []
-  for filename in sorted(os.listdir(directory)):
-    path = os.path.join(directory, filename)
-    if os.path.isfile(path):
-        # print(path)
-        raw_img = Image.open(path)
-        raw_img = np.array(raw_img)
-        # print(raw_img, raw_img.shape)
-        gray = rgb2gray(raw_img)
-        # print(gray)
-        # gray.resize((48,48))
-        gray =  cv2.resize(gray, dsize=(48, 48), interpolation=cv2.INTER_CUBIC)
-        # print(gray.shape)
-        img = gray[:, :, np.newaxis]
+    files = [f for f in sorted(os.listdir(directory), key=_natural_key)
+             if os.path.isfile(os.path.join(directory, f))]
+    if not files:
+        raise ValueError("No frames were extracted from the video.")
 
-        img = np.concatenate((img, img, img), axis=2)
-        img = Image.fromarray(img.astype(np.uint8))
-        inputs = transform_test(img)
-        ncrops, c, h, w = np.shape(inputs)
-        inputs = inputs.view(-1, c, h, w)
-        inputs = inputs.to(device)
-        inputs = Variable(inputs, volatile=True)
-        data.append(inputs)
-        
-#       image = cv2.imread(os.path.join(directory, filename))
-#       image = cv2.resize(image, (48, 48))
-#       data.append(image)
+    net = _load_net()
+    predictionList_num = []
+    predictionList_name = []
 
-  net = VGG('VGG19')
-  checkpoint = torch.load("model.t7", map_location = device)
-  net.load_state_dict(checkpoint['net'])
-  net.to(device)
-  net.eval()
-  model = load_model("weights.hdf5")
-  predictionList = []
-    
-  for image in data:
-    outputs = net(inputs)
-    outputs_avg = outputs.view(ncrops, -1).mean(0)  # avg over crops
-    score = F.softmax(outputs_avg)
-    _, predicted = torch.max(outputs_avg.data, 0)
-    predictionList_num.append(int(predicted.cpu().numpy()))
-    predictionList_name.append(class_names[int(predicted.cpu().numpy())])
-  return predictionList_num, predictionList_name
+    with torch.no_grad():
+        for filename in files:
+            raw_img = np.array(Image.open(os.path.join(directory, filename)).convert('RGB'))
+            gray = rgb2gray(raw_img)
+            gray = cv2.resize(gray, dsize=(48, 48), interpolation=cv2.INTER_CUBIC)
+            img = np.repeat(gray[:, :, np.newaxis], 3, axis=2)
+            img = Image.fromarray(np.clip(img, 0, 255).astype(np.uint8))
+
+            inputs = transform_test(img)                 # (ncrops, c, h, w)
+            ncrops, c, h, w = inputs.shape
+            inputs = inputs.view(-1, c, h, w).to(device)
+
+            outputs = net(inputs)
+            outputs_avg = outputs.view(ncrops, -1).mean(0)   # average over the crops
+            predicted = int(torch.argmax(outputs_avg).item())
+
+            predictionList_num.append(predicted)
+            predictionList_name.append(CLASS_NAMES[predicted])
+
+    return predictionList_num, predictionList_name
+
 
 def getMax(emotion_count, emotion_list):
-  sns.color_palette("husl", 8)
-  sns.barplot(emotion_list, emotion_count, palette = "husl")
-  plt.xticks(rotation=15)
+    sns.barplot(x=emotion_list, y=emotion_count, palette="husl")
+    plt.xticks(rotation=15)
+
 
 def timeTrends(emotion_list, emotions, duration, PLOTSDIR):
-  #duration, fps, frame_count = getMetrics(os.path.join())
-  times = list(range(0, len(emotions)))
-  xranges = np.linspace(0, duration, len(emotions))
-  sns.scatterplot(x=xranges, y=emotions, palette = "Set2")
-  plt.title("Emotion Detection (By Frame)")
-  #plt.yticks(range(0, len(emotion_list)), emotion_list)
-  plt.yticks([0, 1, 2, 3, 4, 5, 6], emotion_list)
-  plt.xlabel("Time (seconds)")
-  plt.xticks(rotation=15)
-  plt.savefig(os.path.join(PLOTSDIR, 'stage1_emotions.png'))
-  plt.clf()
+    xranges = np.linspace(0, duration, len(emotions))
+    sns.scatterplot(x=xranges, y=emotions)
+    plt.title("Emotion Detection (By Frame)")
+    plt.yticks([0, 1, 2, 3, 4, 5, 6], emotion_list)
+    plt.xlabel("Time (seconds)")
+    plt.xticks(rotation=15)
+    plt.savefig(os.path.join(PLOTSDIR, 'stage1_emotions.png'))
+    plt.clf()
+
 
 def getEmfromVideo(filepath, duration, PLOTSDIR):
-  #emotion_list = ["neutral", "anger", "disgust", "fear", "happy", "sadness", "surprise"]
-  emotion_list= ['Anger', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
-  emotion_count = [0, 0, 0, 0, 0, 0, 0]
-  emotions, emotion_lists = getEmotions(filepath)
-  print(emotions)
-  #emotion_lists, length = getTimeList(emotions)
-  timeTrends(emotion_list, emotions, duration, PLOTSDIR)
-  return emotion_lists
-
-
+    emotion_list = ['Anger', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
+    emotions, emotion_lists = getEmotions(filepath)
+    timeTrends(emotion_list, emotions, duration, PLOTSDIR)
+    return emotion_lists

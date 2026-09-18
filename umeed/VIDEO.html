@@ -1,15 +1,14 @@
-<!-- Video calling ome.tv -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Umeed — Video Support</title>
-<script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400;1,500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --ink:#241934;
@@ -27,7 +26,6 @@
   --paper:#FFFFFF;
   --display:'Fraunces',Georgia,serif;
   --sans:'Sora','Segoe UI',Tahoma,sans-serif;
-  --rail:270px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100%;background:var(--ivory)}
@@ -35,30 +33,14 @@ body{font-family:var(--sans);color:var(--body);-webkit-font-smoothing:antialiase
 button,input{font:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--rose);outline-offset:3px;border-radius:8px}
+.hidden{display:none!important}
 
-.navbar{
-  width:var(--rail);background:var(--ink);color:var(--ivory);padding:32px 22px 24px;
-  display:flex;flex-direction:column;height:100vh;position:fixed;left:0;top:0;
-  overflow-y:auto;z-index:50
-}
-.navbar-brand{display:flex;align-items:center;gap:13px;text-decoration:none;padding-bottom:26px;margin-bottom:26px;border-bottom:1px solid rgba(251,243,236,.14)}
-.navbar-logo{font-size:18px;color:var(--ink);background:linear-gradient(140deg,var(--marigold),var(--rose));width:44px;height:44px;border-radius:15px 15px 15px 4px;display:grid;place-items:center;flex-shrink:0}
-.navbar-title{font-family:var(--display);font-style:italic;font-size:1.55rem;font-weight:500;line-height:1.1}
-.navbar-subtitle{font-size:.72rem;color:var(--rose);margin-top:3px}
-.navbar-nav{display:flex;flex-direction:column;gap:3px;flex:1}
-.nav-link{color:rgba(251,243,236,.72);text-decoration:none;font-size:.93rem;padding:11px 14px;border-radius:11px;display:flex;align-items:center;gap:13px;transition:.2s}
-.nav-link i{width:18px;text-align:center;font-size:.92rem;opacity:.75}
-.nav-link:hover{background:rgba(201,123,99,.16);color:var(--ivory)}
-.nav-link.active{background:var(--rose);color:var(--ink);font-weight:600}
-.nav-link.active i{opacity:1;color:var(--ink)}
-.rail-note{margin-top:26px;padding:17px;border-radius:14px;background:rgba(232,163,61,.12);border:1px solid rgba(232,163,61,.22);font-size:.79rem;line-height:1.55;color:rgba(251,243,236,.85)}
-.rail-note strong{display:block;color:var(--ivory);font-weight:600;margin-bottom:3px}
-.rail-note span{color:var(--marigold);font-weight:600}
-.rail-toggle{display:none}
-
-.main-content{margin-left:var(--rail);min-height:100vh;padding:32px 40px;display:flex;flex-direction:column}
+/* ---------- Page layout ---------- */
+.main-content{max-width:1240px;margin:0 auto;min-height:100vh;padding:32px 40px;display:flex;flex-direction:column}
 .topbar{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:22px;flex-wrap:wrap}
-.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.85rem;color:var(--rose-deep);margin-bottom:10px;font-weight:500}
+.back-link{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;color:var(--mauve);text-decoration:none;margin-bottom:14px}
+.back-link:hover{color:var(--rose-deep)}
+.eyebrow{display:flex;align-items:center;gap:9px;font-size:.85rem;color:var(--rose-deep);margin-bottom:10px;font-weight:500}
 .eyebrow:before{content:'';width:22px;height:1px;background:var(--marigold)}
 h1{font-family:var(--display);font-weight:400;font-size:clamp(1.7rem,2.6vw,2.2rem);letter-spacing:-.02em;color:var(--ink)}
 .subtitle{font-size:.94rem;color:var(--muted);margin-top:6px;max-width:52ch;line-height:1.6}
@@ -66,130 +48,109 @@ h1{font-family:var(--display);font-weight:400;font-size:clamp(1.7rem,2.6vw,2.2re
 .status-dot{width:7px;height:7px;background:var(--sage);border-radius:50%;animation:pulse 2s infinite}
 .status-dot.offline{background:var(--rose)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@media (prefers-reduced-motion:reduce){.status-dot{animation:none}}
 
-.call-shell{background:var(--paper);border-radius:26px;box-shadow:0 30px 60px -34px rgba(36,25,52,.35);overflow:hidden;display:flex;flex-direction:column;min-height:calc(100vh - 170px)}
-.call-stage{
-  position:relative;flex:1;min-height:540px;background:#17121f;overflow:hidden;
-  padding:18px;display:flex;align-items:center;justify-content:center
-}
-.remote-wrap{
-  width:100%;height:100%;min-height:500px;background:#211b29;border-radius:20px;
-  overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center
-}
+/* ---------- Call area ---------- */
+.call-shell{background:var(--paper);border-radius:26px;box-shadow:0 30px 60px -34px rgba(36,25,52,.35);overflow:hidden;display:flex;flex-direction:column}
+.call-stage{position:relative;flex:1;min-height:520px;background:#17121f;overflow:hidden;padding:18px;display:flex;align-items:center;justify-content:center}
+.remote-wrap{width:100%;height:100%;min-height:484px;background:#211b29;border-radius:20px;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
 .remote-wrap video{width:100%;height:100%;object-fit:cover;background:#211b29}
-.video-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(251,243,236,.72);gap:12px;background:radial-gradient(circle at center, #3b3043, #211b29 55%, #17121f)}
-.avatar{width:76px;height:76px;border-radius:26px 26px 26px 8px;background:linear-gradient(140deg,var(--marigold),var(--rose));display:grid;place-items:center;color:var(--ink);font-family:var(--display);font-size:2rem;font-style:italic}
+.video-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(251,243,236,.72);gap:12px;background:radial-gradient(circle at center,#3b3043,#211b29 55%,#17121f)}
+.avatar{width:76px;height:76px;border-radius:26px 26px 26px 8px;background:linear-gradient(140deg,var(--marigold),var(--rose));display:grid;place-items:center;color:var(--ink);font-size:1.8rem}
 .placeholder-text{text-align:center;font-size:.85rem;color:rgba(251,243,236,.62)}
-.video-label{
-  position:absolute;left:16px;bottom:16px;padding:8px 12px;border-radius:10px;
-  background:rgba(36,25,52,.78);backdrop-filter:blur(10px);color:var(--ivory);font-size:.78rem
-}
+.video-label{position:absolute;left:16px;bottom:16px;padding:8px 12px;border-radius:10px;background:rgba(36,25,52,.78);backdrop-filter:blur(10px);color:var(--ivory);font-size:.78rem}
 .remote-actions{position:absolute;right:16px;top:16px;display:flex;gap:8px;z-index:5}
-.stage-btn,.mini-btn{
-  border:1px solid rgba(251,243,236,.16);background:rgba(36,25,52,.78);color:var(--ivory);
-  width:42px;height:42px;border-radius:12px;display:grid;place-items:center;backdrop-filter:blur(10px);transition:.2s
-}
-.stage-btn:hover,.mini-btn:hover{background:var(--rose-deep)}
-.local-wrap{
-  position:absolute;right:34px;bottom:34px;width:min(28%,310px);aspect-ratio:16/10;
-  min-width:190px;border:3px solid rgba(251,243,236,.92);border-radius:18px;overflow:hidden;
-  background:#211b29;box-shadow:0 14px 35px rgba(0,0,0,.35);z-index:8
-}
+.stage-btn{border:1px solid rgba(251,243,236,.16);background:rgba(36,25,52,.78);color:var(--ivory);width:42px;height:42px;border-radius:12px;display:grid;place-items:center;backdrop-filter:blur(10px);transition:.2s}
+.stage-btn:hover{background:var(--rose-deep)}
+.local-wrap{position:absolute;right:34px;bottom:34px;width:min(28%,310px);aspect-ratio:16/10;min-width:190px;border:3px solid rgba(251,243,236,.92);border-radius:18px;overflow:hidden;background:#211b29;box-shadow:0 14px 35px rgba(0,0,0,.35);z-index:8}
 .local-wrap video{width:100%;height:100%;object-fit:cover}
 .local-label{position:absolute;left:9px;bottom:8px;background:rgba(36,25,52,.72);color:var(--ivory);font-size:.68rem;padding:5px 8px;border-radius:8px}
 .video-off-cover{display:none;position:absolute;inset:0;background:#211b29;align-items:center;justify-content:center;color:var(--ivory);font-size:.75rem}
 .video-off-cover.show{display:flex}
-
-.connection-banner{
-  position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:10;
-  padding:9px 14px;border-radius:999px;background:rgba(36,25,52,.82);color:var(--ivory);
-  font-size:.75rem;backdrop-filter:blur(10px);max-width:calc(100% - 40px);text-align:center
-}
+.connection-banner{position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:10;padding:9px 14px;border-radius:999px;background:rgba(36,25,52,.82);color:var(--ivory);font-size:.75rem;backdrop-filter:blur(10px);max-width:calc(100% - 40px);text-align:center}
 .timer{position:absolute;left:18px;top:18px;z-index:9;color:var(--ivory);font-size:.75rem;background:rgba(36,25,52,.68);padding:8px 11px;border-radius:10px}
 
+/* ---------- Wellness indicator (sits under the video, never covers it) ---------- */
+.wellness{padding:18px 22px;background:var(--ivory);border-top:1px solid var(--taupe)}
+.wellness-header{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.wellness-title{font-size:.9rem;font-weight:600;color:var(--ink)}
+.wellness-title i{color:var(--marigold);margin-right:7px}
+.wellness-subtitle{font-size:.72rem;color:var(--muted);margin-top:4px;max-width:64ch;line-height:1.55}
+.wellness-right{display:flex;align-items:center;gap:14px}
+.wellness-status{font-size:.7rem;font-weight:600;padding:5px 10px;border-radius:999px;background:var(--ivory-deep);color:var(--mauve);white-space:nowrap}
+.wellness-status.live{background:rgba(111,143,91,.18);color:#4d6b3c}
+.wellness-status.error{background:rgba(173,95,73,.16);color:var(--rose-deep)}
+.switch{position:relative;display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-size:.78rem;font-weight:600;color:var(--ink);user-select:none}
+.switch input{position:absolute;opacity:0;width:1px;height:1px}
+.switch-track{width:40px;height:22px;border-radius:999px;background:var(--taupe);position:relative;transition:.2s;flex-shrink:0}
+.switch-track:after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.switch input:checked + .switch-track{background:var(--sage)}
+.switch input:checked + .switch-track:after{transform:translateX(18px)}
+.switch input:focus-visible + .switch-track{outline:2px solid var(--rose);outline-offset:3px}
+.wellness-body{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.wellness-item{padding:11px 14px;border-radius:12px;background:var(--paper);border:1px solid var(--taupe)}
+.wellness-item span{display:block;font-size:.68rem;color:var(--muted)}
+.wellness-item strong{display:block;margin-top:5px;font-size:.95rem;font-weight:600;color:var(--ink)}
+.wellness-item.overall{background:var(--ink);border-color:var(--ink)}
+.wellness-item.overall span{color:rgba(251,243,236,.6)}
+.wellness-item.overall strong{color:var(--marigold)}
+.wellness-note{margin-top:12px;font-size:.68rem;color:var(--muted);line-height:1.5}
+.wellness-note i{margin-right:5px}
+
+/* ---------- Controls ---------- */
 .controls-area{padding:18px 22px;background:var(--paper);border-top:1px solid var(--taupe)}
 .control-row{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap}
-.call-control{
-  min-width:52px;height:48px;border:1px solid var(--taupe);border-radius:14px;
-  background:var(--ivory);color:var(--ink);display:flex;align-items:center;justify-content:center;
-  gap:8px;padding:0 15px;transition:.2s;font-size:.8rem;font-weight:600
-}
-.call-control:hover{border-color:var(--rose);background:var(--ivory-deep)}
+.call-control{min-width:52px;height:48px;border:1px solid var(--taupe);border-radius:14px;background:var(--ivory);color:var(--ink);display:flex;align-items:center;justify-content:center;gap:8px;padding:0 15px;transition:.2s;font-size:.8rem;font-weight:600}
+.call-control:hover:not(:disabled){border-color:var(--rose);background:var(--ivory-deep)}
 .call-control.active{background:var(--ink);color:var(--ivory);border-color:var(--ink)}
 .call-control.danger{background:var(--rose-deep);color:var(--ivory);border-color:var(--rose-deep);min-width:118px}
 .call-control:disabled{opacity:.45;cursor:not-allowed}
 .control-hint{margin-top:10px;text-align:center;color:var(--muted);font-size:.7rem}
-
 .meeting-panel{margin-top:16px;background:var(--ivory-deep);border:1px solid var(--taupe);border-radius:18px;padding:14px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .meeting-panel .info{flex:1;min-width:230px}
 .meeting-panel strong{display:block;color:var(--ink);font-size:.8rem;margin-bottom:4px}
 .meeting-panel span{font-size:.72rem;color:var(--muted);word-break:break-all}
 .copy-link{border:0;background:var(--ink);color:var(--ivory);padding:9px 14px;border-radius:10px;font-size:.74rem;font-weight:600}
+.helpline{margin-top:16px;text-align:center;font-size:.78rem;color:var(--muted)}
+.helpline strong{color:var(--rose-deep)}
 
-.toast{position:fixed;bottom:24px;left:calc(50% + var(--rail)/2);transform:translateX(-50%) translateY(100px);background:var(--ink);color:var(--ivory);padding:12px 20px;border-radius:12px;box-shadow:0 10px 30px rgba(36,25,52,.3);z-index:1000;opacity:0;transition:.3s;font-size:.82rem;max-width:min(90vw,500px);text-align:center}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--ink);color:var(--ivory);padding:12px 20px;border-radius:12px;box-shadow:0 10px 30px rgba(36,25,52,.3);z-index:1000;opacity:0;transition:.3s;font-size:.82rem;max-width:min(90vw,500px);text-align:center}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-.hidden{display:none!important}
 
 @media (max-width:900px){
-  .navbar{position:sticky;top:0;width:100%;height:auto;padding:16px 20px}
-  .navbar-brand{margin-bottom:0;padding-bottom:0;border-bottom:none}
-  .rail-toggle{display:grid;place-items:center;position:absolute;right:18px;top:20px;width:40px;height:40px;border-radius:10px;background:rgba(201,123,99,.18);color:var(--ivory);border:none}
-  .navbar-nav{display:none;margin-top:18px;padding-top:16px;border-top:1px solid rgba(251,243,236,.14)}
-  .navbar.open .navbar-nav{display:flex}
-  .rail-note{display:none}
-  .navbar.open .rail-note{display:block}
-  .main-content{margin-left:0;padding:20px}
+  .main-content{padding:20px}
   .call-stage{min-height:440px}
-  .remote-wrap{min-height:400px}
+  .remote-wrap{min-height:404px}
   .local-wrap{right:24px;bottom:24px;width:190px}
-  .toast{left:50%}
+}
+@media (max-width:700px){
+  .wellness-body{grid-template-columns:repeat(2,1fr)}
 }
 @media (max-width:600px){
   .main-content{padding:14px}
   .topbar{margin-bottom:14px}
-  .call-shell{min-height:calc(100vh - 145px);border-radius:20px}
+  .call-shell{border-radius:20px}
   .call-stage{min-height:400px;padding:8px}
-  .remote-wrap{min-height:360px;border-radius:15px}
+  .remote-wrap{min-height:384px;border-radius:15px}
   .local-wrap{width:125px;min-width:125px;right:16px;bottom:16px;border-width:2px}
   .remote-actions{right:10px;top:10px}
   .stage-btn{width:38px;height:38px}
   .timer{left:10px;top:10px}
   .connection-banner{top:10px}
+  .wellness{padding:16px}
   .call-control{height:46px;width:46px;min-width:46px;padding:0;border-radius:13px}
   .call-control span{display:none}
   .call-control.danger{width:auto;min-width:92px;padding:0 14px}
+  .call-control.danger span{display:inline}
 }
 </style>
 </head>
 <body>
 
-<nav class="navbar" id="rail">
-  <a href="index.html" class="navbar-brand">
-    <i class="fas fa-sun navbar-logo"></i>
-    <div>
-      <div class="navbar-title">Umeed</div>
-      <div class="navbar-subtitle">Employee Wellness Assistant</div>
-    </div>
-  </a>
-  <button class="rail-toggle" id="railToggle" aria-label="Show menu" aria-expanded="false">
-    <i class="fas fa-bars"></i>
-  </button>
-  <div class="navbar-nav">
-    <a href="dashboard.html" class="nav-link"><i class="fas fa-home"></i><span>Dashboard</span></a>
-    <a href="quiz.html" class="nav-link"><i class="fas fa-clipboard-list"></i><span>Stress Assessment</span></a>
-    <a href="counselling.html" class="nav-link active"><i class="fas fa-video"></i><span>Professional Support</span></a>
-    <a href="resources.html" class="nav-link"><i class="fas fa-book-open"></i><span>Wellness Resources</span></a>
-    <a href="aichat.html" class="nav-link"><i class="fas fa-robot"></i><span>AI Support Chat</span></a>
-  </div>
-  <div class="rail-note">
-    <strong>Need help right now?</strong>
-    Tele-MANAS is free and open 24 hours — <span>14416</span>
-  </div>
-</nav>
-
 <main class="main-content">
   <div class="topbar">
     <div>
+      <a class="back-link" href="dashboard.html"><i class="fas fa-arrow-left"></i> Back to dashboard</a>
       <span class="eyebrow">Private video support</span>
       <h1>Talk to someone, face to face</h1>
       <p class="subtitle">A calm, simple video room for connecting with your counsellor. Your camera and microphone stay under your control.</p>
@@ -229,6 +190,44 @@ h1{font-family:var(--display);font-weight:400;font-size:clamp(1.7rem,2.6vw,2.2re
       </div>
     </div>
 
+    <section class="wellness" id="wellnessPanel" aria-label="Wellness indicator">
+      <div class="wellness-header">
+        <div>
+          <div class="wellness-title"><i class="fas fa-leaf"></i>Wellness Indicator</div>
+          <div class="wellness-subtitle">Optional. When switched on, short clips from your camera are sent to the analysis server to estimate emotion, heart rate and facial tension. Clips are deleted right after analysis.</div>
+        </div>
+        <div class="wellness-right">
+          <span class="wellness-status" id="wellnessStatus">Off</span>
+          <label class="switch">
+            <input type="checkbox" id="wellnessToggle">
+            <span class="switch-track"></span>
+            <span>Turn on</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="wellness-body">
+        <div class="wellness-item">
+          <span>Emotional state</span>
+          <strong id="emotionResult">—</strong>
+        </div>
+        <div class="wellness-item">
+          <span>Heart rate</span>
+          <strong id="heartRateResult">—</strong>
+        </div>
+        <div class="wellness-item">
+          <span>Facial tension</span>
+          <strong id="tensionResult">—</strong>
+        </div>
+        <div class="wellness-item overall">
+          <span>Overall indicator</span>
+          <strong id="stressResult">—</strong>
+        </div>
+      </div>
+
+      <div class="wellness-note"><i class="fas fa-circle-info"></i>Experimental indicator — not a medical diagnosis.</div>
+    </section>
+
     <div class="controls-area">
       <div class="control-row">
         <button class="call-control" id="startButton" title="Start or join meeting">
@@ -264,39 +263,66 @@ h1{font-family:var(--display);font-weight:400;font-size:clamp(1.7rem,2.6vw,2.2re
       </div>
     </div>
   </section>
+
+  <p class="helpline">Need help right now? Tele-MANAS is free and open 24 hours — <strong>14416</strong></p>
 </main>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-const localVideo = document.getElementById('localVideo');
-const remoteVideo = document.getElementById('remoteVideo');
-const remotePlaceholder = document.getElementById('remotePlaceholder');
-const remotePlaceholderText = document.getElementById('remotePlaceholderText');
-const videoOffCover = document.getElementById('videoOffCover');
-const statusText = document.getElementById('statusText');
-const statusDot = document.getElementById('statusDot');
-const connectionBanner = document.getElementById('connectionBanner');
-const startButton = document.getElementById('startButton');
-const micToggleBtn = document.getElementById('micToggleBtn');
-const videoToggleBtn = document.getElementById('videoToggleBtn');
-const screenShareBtn = document.getElementById('screenShareBtn');
-const flipBtn = document.getElementById('flipBtn');
-const fullscreenBtn = document.getElementById('fullscreenBtn');
-const remoteFullscreenBtn = document.getElementById('remoteFullscreenBtn');
-const pipBtn = document.getElementById('pipBtn');
-const endCallBtn = document.getElementById('endCallBtn');
-const copyLinkBtn = document.getElementById('copyLinkBtn');
-const linkSection = document.getElementById('linkSection');
-const meetingLinkText = document.getElementById('meetingLinkText');
-const callTimer = document.getElementById('callTimer');
-const callShell = document.getElementById('callShell');
-const callStage = document.getElementById('callStage');
-const controlHint = document.getElementById('controlHint');
-const toast = document.getElementById('toast');
-const rail = document.getElementById('rail');
-const railToggle = document.getElementById('railToggle');
+'use strict';
 
+/* ============================================================
+   Settings
+   ============================================================ */
+// Address of the Flask stress-analysis backend (app.py).
+// 127.0.0.1 only works on the machine that runs the backend —
+// change this to your server's address when you deploy.
+const API_BASE = 'http://127.0.0.1:5000';
+const WELLNESS_CLIP_MS = 10000;   // length of each recorded clip
+const WELLNESS_GAP_MS  = 20000;   // pause between one result and the next clip
+
+/* ============================================================
+   Elements (each one declared exactly once)
+   ============================================================ */
+const $ = id => document.getElementById(id);
+
+const localVideo = $('localVideo');
+const remoteVideo = $('remoteVideo');
+const remoteWrap = $('remoteWrap');
+const remotePlaceholder = $('remotePlaceholder');
+const remotePlaceholderText = $('remotePlaceholderText');
+const videoOffCover = $('videoOffCover');
+const statusText = $('statusText');
+const statusDot = $('statusDot');
+const connectionBanner = $('connectionBanner');
+const startButton = $('startButton');
+const micToggleBtn = $('micToggleBtn');
+const videoToggleBtn = $('videoToggleBtn');
+const screenShareBtn = $('screenShareBtn');
+const flipBtn = $('flipBtn');
+const fullscreenBtn = $('fullscreenBtn');
+const remoteFullscreenBtn = $('remoteFullscreenBtn');
+const pipBtn = $('pipBtn');
+const endCallBtn = $('endCallBtn');
+const copyLinkBtn = $('copyLinkBtn');
+const linkSection = $('linkSection');
+const meetingLinkText = $('meetingLinkText');
+const callTimer = $('callTimer');
+const callShell = $('callShell');
+const controlHint = $('controlHint');
+const toast = $('toast');
+
+const wellnessToggle = $('wellnessToggle');
+const wellnessStatus = $('wellnessStatus');
+const emotionResult = $('emotionResult');
+const heartRateResult = $('heartRateResult');
+const tensionResult = $('tensionResult');
+const stressResult = $('stressResult');
+
+/* ============================================================
+   State
+   ============================================================ */
 let peer = null;
 let localStream = null;
 let currentCall = null;
@@ -305,15 +331,18 @@ let cameraFacingMode = 'user';
 let timerInterval = null;
 let callStartedAt = null;
 
+let wellnessEnabled = false;
+let wellnessRunning = false;
+let wellnessLoopTimer = null;
+let wellnessRecorder = null;
+let wellnessAbort = null;
+
 const urlParams = new URLSearchParams(window.location.search);
 const remotePeerId = urlParams.get('room');
 
-railToggle.addEventListener('click', function(){
-  const open = rail.classList.toggle('open');
-  railToggle.setAttribute('aria-expanded', open);
-  railToggle.innerHTML = open ? '<i class="fas fa-xmark"></i>' : '<i class="fas fa-bars"></i>';
-});
-
+/* ============================================================
+   Small helpers
+   ============================================================ */
 function setStatus(text, online = true){
   statusText.textContent = text;
   statusDot.classList.toggle('offline', !online);
@@ -328,8 +357,8 @@ function showToast(message){
 }
 
 function formatTime(seconds){
-  const m = String(Math.floor(seconds / 60)).padStart(2,'0');
-  const s = String(seconds % 60).padStart(2,'0');
+  const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+  const s = String(seconds % 60).padStart(2, '0');
   return m + ':' + s;
 }
 
@@ -350,7 +379,8 @@ function stopTimer(){
 }
 
 function setControls(disabled){
-  [micToggleBtn, videoToggleBtn, screenShareBtn, flipBtn, fullscreenBtn, endCallBtn].forEach(btn => btn.disabled = disabled);
+  [micToggleBtn, videoToggleBtn, screenShareBtn, flipBtn, fullscreenBtn, endCallBtn]
+    .forEach(btn => { btn.disabled = disabled; });
 }
 
 function updateMediaButtons(){
@@ -384,21 +414,200 @@ function replaceOutgoingVideoTrack(track){
   return true;
 }
 
+/* ============================================================
+   Wellness indicator
+   (records a short video-only clip, posts it to the backend,
+    shows the summary it sends back — only when switched on)
+   ============================================================ */
+function setWellnessStatus(text, kind){
+  wellnessStatus.textContent = text;
+  wellnessStatus.className = 'wellness-status' + (kind ? ' ' + kind : '');
+}
+
+function resetWellnessValues(){
+  emotionResult.textContent = '—';
+  heartRateResult.textContent = '—';
+  tensionResult.textContent = '—';
+  stressResult.textContent = '—';
+}
+
+function pickRecorderMime(){
+  const options = ['video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
+  return options.find(t => MediaRecorder.isTypeSupported(t)) || '';
+}
+
+function recordClip(stream, ms){
+  return new Promise((resolve, reject) => {
+    const mime = pickRecorderMime();
+    let recorder;
+    try{
+      recorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+    }catch(err){
+      reject(err);
+      return;
+    }
+
+    const chunks = [];
+    wellnessRecorder = recorder;
+    recorder.ondataavailable = e => { if(e.data && e.data.size > 0) chunks.push(e.data); };
+    recorder.onerror = e => reject(e.error || new Error('Recorder error'));
+    recorder.onstop = () => {
+      if(wellnessRecorder === recorder) wellnessRecorder = null;
+      resolve(new Blob(chunks, { type: recorder.mimeType || 'video/webm' }));
+    };
+
+    recorder.start();
+    setTimeout(() => { if(recorder.state === 'recording') recorder.stop(); }, ms);
+  });
+}
+
+async function sendWellnessVideo(blob){
+  if(blob.size < 1000) throw new Error('Recorded clip was empty');
+
+  const ext = blob.type.includes('mp4') ? 'mp4' : 'webm';
+  const form = new FormData();
+  form.append('file', blob, 'wellness.' + ext);
+
+  wellnessAbort = new AbortController();
+  const response = await fetch(API_BASE + '/stress', {
+    method: 'POST',
+    body: form,
+    signal: wellnessAbort.signal
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if(!response.ok) throw new Error(data.error || ('Server returned ' + response.status));
+  return data;
+}
+
+function updateWellnessUI(result){
+  setWellnessStatus('Live', 'live');
+  emotionResult.textContent = result.emotion || '—';
+  heartRateResult.textContent = result.heart_rate ? Math.round(result.heart_rate) + ' bpm' : '—';
+  tensionResult.textContent = result.tension || '—';
+  stressResult.textContent = result.stress_level || '—';
+}
+
+function scheduleWellnessClip(delay){
+  clearTimeout(wellnessLoopTimer);
+  wellnessLoopTimer = setTimeout(runWellnessClip, delay);
+}
+
+async function runWellnessClip(){
+  if(!wellnessRunning || !localStream) return;
+
+  const videoTrack = localStream.getVideoTracks()[0];
+  if(!videoTrack || !videoTrack.enabled){
+    setWellnessStatus('Camera off');
+    scheduleWellnessClip(3000);
+    return;
+  }
+
+  try{
+    setWellnessStatus('Sampling…');
+    const clip = await recordClip(new MediaStream([videoTrack]), WELLNESS_CLIP_MS);
+    if(!wellnessRunning) return;
+
+    setWellnessStatus('Analysing…');
+    const result = await sendWellnessVideo(clip);
+    if(!wellnessRunning) return;
+
+    updateWellnessUI(result);
+  }catch(err){
+    console.error('Wellness error:', err);
+    if(wellnessRunning) setWellnessStatus('Unavailable', 'error');
+  }
+
+  if(wellnessRunning) scheduleWellnessClip(WELLNESS_GAP_MS);
+}
+
+function startWellnessAnalysis(){
+  if(!wellnessEnabled || !localStream || wellnessRunning) return;
+  if(!window.MediaRecorder){
+    setWellnessStatus('Not supported', 'error');
+    return;
+  }
+  wellnessRunning = true;
+  setWellnessStatus('Starting…');
+  scheduleWellnessClip(2000);
+}
+
+function stopWellnessAnalysis(statusOverride){
+  wellnessRunning = false;
+  clearTimeout(wellnessLoopTimer);
+  wellnessLoopTimer = null;
+
+  if(wellnessAbort){
+    wellnessAbort.abort();
+    wellnessAbort = null;
+  }
+  if(wellnessRecorder && wellnessRecorder.state === 'recording'){
+    try{ wellnessRecorder.stop(); }catch(e){}
+  }
+  wellnessRecorder = null;
+
+  resetWellnessValues();
+  setWellnessStatus(statusOverride || (wellnessEnabled ? 'Waiting' : 'Off'));
+}
+
+wellnessToggle.addEventListener('change', () => {
+  wellnessEnabled = wellnessToggle.checked;
+  if(wellnessEnabled){
+    if(localStream){
+      startWellnessAnalysis();
+    }else{
+      setWellnessStatus('Waiting');
+    }
+    showToast('Wellness indicator on. It will analyse short camera clips.');
+  }else{
+    stopWellnessAnalysis('Off');
+    showToast('Wellness indicator off. No more video is sent.');
+  }
+});
+
+/* ============================================================
+   Call flow
+   ============================================================ */
 async function startCallFlow(){
   startButton.disabled = true;
   setControls(true);
-  setStatus('Requesting camera and microphone...', true);
+
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    setStatus('Camera access is not available here.', false);
+    connectionBanner.textContent = 'Open this page over https:// or from localhost to use your camera.';
+    startButton.disabled = false;
+    return;
+  }
+
+  setStatus('Requesting camera and microphone…', true);
 
   try{
     localStream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: cameraFacingMode },
       audio: true
     });
+  }catch(error){
+    console.error(error);
+    setStatus('Could not access camera or microphone.', false);
+    connectionBanner.textContent = 'Please allow camera and microphone access, then try again.';
+    startButton.disabled = false;
+    startButton.querySelector('span').textContent = remotePeerId ? 'Join meeting' : 'Start meeting';
+    showToast('Camera/microphone permission is required.');
+    return;
+  }
 
-    localVideo.srcObject = localStream;
-    updateMediaButtons();
-    setStatus('Camera and microphone ready. Connecting...', true);
+  localVideo.srcObject = localStream;
+  updateMediaButtons();
 
+  // Camera is ready: turn the in-call buttons on.
+  // (Screen sharing waits until the other person has connected.)
+  setControls(false);
+  screenShareBtn.disabled = true;
+
+  startWellnessAnalysis();
+  setStatus('Camera and microphone ready. Connecting…', true);
+
+  try{
     if(remotePeerId){
       startButton.querySelector('span').textContent = 'Joining…';
       initializePeer(null);
@@ -407,11 +616,9 @@ async function startCallFlow(){
     }
   }catch(error){
     console.error(error);
-    setStatus('Could not access camera or microphone.', false);
-    connectionBanner.textContent = 'Please allow camera and microphone access, then try again.';
-    startButton.disabled = false;
-    startButton.querySelector('span').textContent = remotePeerId ? 'Join meeting' : 'Start meeting';
-    showToast('Camera/microphone permission is required.');
+    endCallCleanup();
+    setStatus('Could not start the video service.', false);
+    showToast('Video service failed to load. Check your connection.');
   }
 }
 
@@ -419,7 +626,13 @@ function initializePeer(id){
   peer = new Peer(id, {
     host: '0.peerjs.com',
     port: 443,
-    secure: true
+    secure: true,
+    config: {
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' }
+      ]
+    }
   });
 
   peer.on('open', peerId => {
@@ -440,20 +653,23 @@ function initializePeer(id){
 
   peer.on('error', err => {
     console.error('PeerJS error:', err);
-    setStatus('Connection error: ' + err.type, false);
-    showToast('Connection error. Please try again.');
-    startButton.disabled = false;
-    startButton.querySelector('span').textContent = remotePeerId ? 'Join meeting' : 'Start meeting';
-    setControls(true);
+    const message = err.type === 'peer-unavailable'
+      ? 'Your counsellor has not opened the room yet. Ask them to start the meeting, then try again.'
+      : 'Connection error: ' + err.type;
+    endCallCleanup();
+    setStatus(message, false);
+    showToast(message);
   });
 
   peer.on('disconnected', () => {
-    setStatus('Signaling disconnected. Reconnecting…', false);
-    if(peer && !peer.destroyed) peer.reconnect();
+    if(peer && !peer.destroyed){
+      setStatus('Signalling disconnected. Reconnecting…', false);
+      peer.reconnect();
+    }
   });
 
   peer.on('close', () => {
-    setStatus('Meeting ended.', false);
+    if(peer) setStatus('Meeting ended.', false);
   });
 }
 
@@ -479,8 +695,10 @@ function setupRemoteStream(call){
   endCallBtn.disabled = false;
 
   call.on('stream', remoteStream => {
+    if(currentCall !== call) return;
     remoteVideo.srcObject = remoteStream;
     remotePlaceholder.classList.add('hidden');
+    screenShareBtn.disabled = false;
     setStatus('Connected with your counsellor.', true);
     connectionBanner.textContent = 'Connected • Your call is private between participants.';
     startTimer();
@@ -489,19 +707,24 @@ function setupRemoteStream(call){
   });
 
   call.on('close', () => {
+    if(currentCall !== call) return;   // we ended it ourselves
+    endCallCleanup();
     setStatus('Your counsellor ended the call.', false);
     showToast('The call has ended.');
-    endCallCleanup();
   });
 
   call.on('error', err => {
+    if(currentCall !== call) return;
     console.error('Call error:', err);
+    endCallCleanup();
     setStatus('Call connection error.', false);
     showToast('The video connection was interrupted.');
-    endCallCleanup();
   });
 }
 
+/* ============================================================
+   In-call controls
+   ============================================================ */
 function toggleAudio(){
   const track = localStream?.getAudioTracks?.()[0];
   if(!track) return;
@@ -532,15 +755,11 @@ async function toggleScreenShare(){
   }
 
   try{
-    screenStream = await navigator.mediaDevices.getDisplayMedia({
-      video: true,
-      audio: false
-    });
+    screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
 
     const screenTrack = screenStream.getVideoTracks()[0];
     localVideo.srcObject = screenStream;
     replaceOutgoingVideoTrack(screenTrack);
-
     screenTrack.addEventListener('ended', stopScreenShare);
 
     screenShareBtn.classList.add('active');
@@ -549,6 +768,7 @@ async function toggleScreenShare(){
     showToast('Screen sharing started.');
   }catch(error){
     console.error('Screen share error:', error);
+    screenStream = null;
     showToast('Screen sharing was cancelled.');
   }
 }
@@ -585,7 +805,7 @@ async function switchCamera(){
     const newTrack = newStream.getVideoTracks()[0];
     const oldTrack = localStream.getVideoTracks()[0];
 
-    replaceOutgoingVideoTrack(newTrack);
+    if(!screenStream) replaceOutgoingVideoTrack(newTrack);
 
     localStream.removeTrack(oldTrack);
     localStream.addTrack(newTrack);
@@ -633,19 +853,26 @@ async function pictureInPicture(){
   }
 }
 
-async function endCall(){
+/* ============================================================
+   Ending a call
+   ============================================================ */
+function endCall(){
   showToast('Ending meeting…');
 
   if(screenStream) stopScreenShare();
 
-  if(currentCall){
-    try{ currentCall.close(); }catch(e){}
+  // Detach first so the 'close' handler knows we ended it ourselves.
+  const call = currentCall;
+  currentCall = null;
+  if(call){
+    try{ call.close(); }catch(e){}
   }
 
   endCallCleanup();
 }
 
 function endCallCleanup(){
+  stopWellnessAnalysis();
   stopTimer();
 
   if(localStream){
@@ -664,9 +891,10 @@ function endCallCleanup(){
   remotePlaceholderText.textContent = 'Waiting for your counsellor to join';
   videoOffCover.classList.remove('show');
 
-  if(peer){
-    try{ peer.destroy(); }catch(e){}
-    peer = null;
+  const oldPeer = peer;
+  peer = null;
+  if(oldPeer){
+    try{ oldPeer.destroy(); }catch(e){}
   }
 
   currentCall = null;
@@ -674,13 +902,24 @@ function endCallCleanup(){
   startButton.querySelector('span').textContent = remotePeerId ? 'Join meeting' : 'Start meeting';
   setControls(true);
   linkSection.classList.add('hidden');
+
+  micToggleBtn.classList.remove('active');
+  micToggleBtn.querySelector('i').className = 'fas fa-microphone';
+  micToggleBtn.querySelector('span').textContent = 'Mute';
+  videoToggleBtn.classList.remove('active');
+  videoToggleBtn.querySelector('i').className = 'fas fa-video';
+  videoToggleBtn.querySelector('span').textContent = 'Camera';
   screenShareBtn.classList.remove('active');
   screenShareBtn.querySelector('i').className = 'fas fa-desktop';
   screenShareBtn.querySelector('span').textContent = 'Share screen';
+
   setStatus('Meeting ended. Ready for a new call.', false);
   controlHint.textContent = 'Camera and microphone controls will appear after you start.';
 }
 
+/* ============================================================
+   Invite link
+   ============================================================ */
 function generateRoomId(){
   return 'umeed-' + Math.random().toString(36).substring(2, 7);
 }
@@ -695,7 +934,6 @@ async function copyLink(){
   const text = meetingLinkText.textContent;
   try{
     await navigator.clipboard.writeText(text);
-    showToast('Meeting link copied to clipboard.');
   }catch(error){
     const area = document.createElement('textarea');
     area.value = text;
@@ -705,10 +943,13 @@ async function copyLink(){
     area.select();
     document.execCommand('copy');
     area.remove();
-    showToast('Meeting link copied to clipboard.');
   }
+  showToast('Meeting link copied to clipboard.');
 }
 
+/* ============================================================
+   Wiring
+   ============================================================ */
 startButton.addEventListener('click', startCallFlow);
 micToggleBtn.addEventListener('click', toggleAudio);
 videoToggleBtn.addEventListener('click', toggleVideo);
@@ -722,9 +963,10 @@ copyLinkBtn.addEventListener('click', copyLink);
 
 document.addEventListener('keydown', event => {
   if(event.target.matches('input, textarea, button, select')) return;
-  if(event.key.toLowerCase() === 'm' && !micToggleBtn.disabled) toggleAudio();
-  if(event.key.toLowerCase() === 'v' && !videoToggleBtn.disabled) toggleVideo();
-  if(event.key.toLowerCase() === 'f' && !fullscreenBtn.disabled) enterFullscreen(callShell);
+  const key = event.key.toLowerCase();
+  if(key === 'm' && !micToggleBtn.disabled) toggleAudio();
+  if(key === 'v' && !videoToggleBtn.disabled) toggleVideo();
+  if(key === 'f' && !fullscreenBtn.disabled) enterFullscreen(callShell);
   if(event.key === 'Escape' && document.fullscreenElement) document.exitFullscreen();
 });
 
@@ -734,18 +976,16 @@ window.addEventListener('beforeunload', () => {
   if(peer) peer.destroy();
 });
 
-window.onload = () => {
-  setControls(true);
-
-  if(remotePeerId){
-    startButton.querySelector('span').textContent = 'Join meeting';
-    setStatus('Ready to join your counsellor’s room.', true);
-    connectionBanner.textContent = 'You have been invited to a private Umeed video room.';
-  }else{
-    setStatus('Ready to start a private meeting.', true);
-    connectionBanner.textContent = 'Click “Start meeting” to enable your camera and microphone.';
-  }
-};
+// Initial state
+setControls(true);
+if(remotePeerId){
+  startButton.querySelector('span').textContent = 'Join meeting';
+  setStatus('Ready to join your counsellor’s room.', true);
+  connectionBanner.textContent = 'You have been invited to a private Umeed video room.';
+}else{
+  setStatus('Ready to start a private meeting.', true);
+  connectionBanner.textContent = 'Click “Start meeting” to enable your camera and microphone.';
+}
 </script>
 </body>
 </html>

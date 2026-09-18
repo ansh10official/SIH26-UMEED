@@ -64,7 +64,11 @@ def normalize_values(points,disp,points_lip,dis_lip):
     return stress_value,stress_label
     
 detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor(r"landmarks.dat")
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+predictor = dlib.shape_predictor(os.path.join(current_dir, "landmarks.dat"))
+# predictor = None
+
 points = []
 points_lip = []
 def get_frame(directory, duration, fps, frame_count): 
