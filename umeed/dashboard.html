@@ -1,0 +1,237 @@
+<!-- DASHBOARD CODE WORKING AND FIXED -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — UmeedBot</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,500&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#241934;
+  --ink-2:#382650;
+  --rose:#C97B63;
+  --rose-deep:#AD5F49;
+  --marigold:#E8A33D;
+  --ivory:#FBF3EC;
+  --ivory-deep:#F3E3D3;
+  --mauve:#6B5470;
+  --taupe:#E7D3C2;
+  --body:#4A3F4E;
+  --muted:#8B7D8E;
+  --sage:#6F8F5B;
+  --paper:#FFFFFF;
+  --display:'Fraunces',Georgia,serif;
+  --sans:'Sora','Segoe UI',Tahoma,sans-serif;
+  --rail:270px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--ivory);color:var(--body);-webkit-font-smoothing:antialiased;display:flex;min-height:100vh;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--rose);outline-offset:3px;border-radius:6px}
+
+/* ---------- Sidebar (shared) ---------- */
+.navbar{width:var(--rail);background:var(--ink);color:var(--ivory);padding:32px 22px 24px;display:flex;flex-direction:column;height:100vh;position:fixed;left:0;top:0;overflow-y:auto;z-index:30}
+.navbar-brand{display:flex;align-items:center;gap:13px;text-decoration:none;padding-bottom:26px;margin-bottom:26px;border-bottom:1px solid rgba(251,243,236,.14)}
+.navbar-logo{font-size:18px;color:var(--ink);background:linear-gradient(140deg,var(--marigold),var(--rose));width:44px;height:44px;border-radius:15px 15px 15px 4px;display:grid;place-items:center;flex-shrink:0}
+.navbar-title{font-family:var(--display);font-style:italic;font-size:1.55rem;font-weight:500;line-height:1.1;letter-spacing:-.01em}
+.navbar-subtitle{font-size:.72rem;color:var(--rose);margin-top:3px;letter-spacing:.01em}
+.navbar-nav{display:flex;flex-direction:column;gap:3px;flex:1}
+.nav-link{color:rgba(251,243,236,.72);text-decoration:none;font-size:.93rem;padding:11px 14px;border-radius:11px;display:flex;align-items:center;gap:13px;transition:background-color .25s,color .25s}
+.nav-link i{width:18px;text-align:center;font-size:.92rem;opacity:.75}
+.nav-link:hover{background:rgba(201,123,99,.16);color:var(--ivory)}
+.nav-link.active{background:var(--rose);color:var(--ink);font-weight:600}
+.nav-link.active i{opacity:1;color:var(--ink)}
+.rail-note{margin-top:26px;padding:17px;border-radius:14px;background:rgba(232,163,61,.12);border:1px solid rgba(232,163,61,.22);font-size:.79rem;line-height:1.55;color:rgba(251,243,236,.85)}
+.rail-note strong{display:block;color:var(--ivory);font-weight:600;margin-bottom:3px}
+.rail-note span{color:var(--marigold);font-weight:600}
+.rail-toggle{display:none}
+.rail-overlay{display:none}
+
+/* ---------- Layout ---------- */
+.main-content{flex:1;margin-left:var(--rail);max-width:calc(100% - var(--rail));padding:52px 48px 64px}
+.dash-head{max-width:680px;margin-bottom:40px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.85rem;color:var(--rose-deep);margin-bottom:16px;font-weight:500}
+.eyebrow::before{content:'';width:22px;height:1px;background:var(--marigold)}
+.dash-head h1{font-family:var(--display);font-weight:400;font-size:clamp(2rem,3.2vw,2.7rem);line-height:1.1;letter-spacing:-.02em;color:var(--ink);margin-bottom:12px}
+.dash-head h1 em{font-style:italic;color:var(--rose-deep);font-weight:400}
+.dash-head p{font-size:1rem;color:var(--body);line-height:1.7;max-width:56ch}
+
+/* ---------- Action cards ---------- */
+.action-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-bottom:44px}
+.action-card{
+  background:var(--paper);border-radius:24px;padding:30px 28px;text-align:left;border:none;cursor:pointer;
+  display:flex;flex-direction:column;gap:14px;box-shadow:0 22px 44px -30px rgba(36,25,52,.35);
+  transition:transform .3s,box-shadow .3s;font-family:var(--sans);width:100%;
+}
+.action-card:hover{transform:translateY(-6px);box-shadow:0 30px 55px -26px rgba(36,25,52,.4)}
+.action-icon{width:54px;height:54px;border-radius:16px 16px 16px 5px;display:grid;place-items:center;font-size:1.3rem;color:var(--ivory)}
+.action-card.quiz .action-icon{background:linear-gradient(140deg,var(--marigold),var(--rose))}
+.action-card.support .action-icon{background:linear-gradient(140deg,var(--rose),var(--rose-deep))}
+.action-card.resources .action-icon{background:linear-gradient(140deg,var(--sage),#557a44)}
+.action-card.chat .action-icon{background:linear-gradient(140deg,var(--mauve),var(--ink-2))}
+.action-card h3{font-family:var(--display);font-weight:400;font-size:1.35rem;color:var(--ink);letter-spacing:-.01em}
+.action-card p{font-size:.92rem;color:var(--muted);line-height:1.6}
+
+.scale-note{margin-top:2px;padding-top:12px;border-top:1px solid var(--ivory-deep)}
+.scale-note span{display:block;font-size:.74rem;color:var(--muted);margin-bottom:8px}
+.scale-chips{display:flex;flex-wrap:wrap;gap:8px}
+.scale-chip{position:relative;font-size:.72rem;font-weight:600;color:var(--rose-deep);background:var(--ivory-deep);border:1px solid var(--taupe);border-radius:999px;padding:5px 12px;cursor:help}
+.scale-chip .tip{
+  visibility:hidden;opacity:0;position:absolute;bottom:130%;left:50%;transform:translateX(-50%);
+  width:210px;background:var(--ink);color:var(--ivory);font-weight:400;font-size:.76rem;line-height:1.5;
+  padding:10px 12px;border-radius:12px;transition:opacity .2s;z-index:5;pointer-events:none;
+}
+.scale-chip .tip::after{content:'';position:absolute;top:100%;left:50%;margin-left:-5px;border:5px solid transparent;border-top-color:var(--ink)}
+.scale-chip:hover .tip{visibility:visible;opacity:1}
+
+/* ---------- Info panel ---------- */
+.info-panel{background:var(--paper);border-radius:26px;padding:36px 34px;box-shadow:0 20px 44px -32px rgba(36,25,52,.3);margin-bottom:36px}
+.info-panel h2{font-family:var(--display);font-weight:400;font-size:1.6rem;color:var(--ink);letter-spacing:-.01em;margin-bottom:22px;text-align:center}
+.tools-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:20px}
+.tool-card{background:var(--ivory);border-radius:16px;padding:18px 20px;border-left:3px solid var(--rose)}
+.tool-card h3{font-family:var(--sans);font-weight:700;font-size:.95rem;color:var(--rose-deep);margin-bottom:8px}
+.tool-card p{font-size:.85rem;color:var(--body);line-height:1.6}
+.info-panel .foot{text-align:center;font-size:.85rem;color:var(--muted);line-height:1.6}
+
+.encourage{text-align:center;font-size:.9rem;color:var(--muted);line-height:1.7;max-width:56ch;margin:0 auto}
+
+/* ---------- Responsive ---------- */
+@media (max-width:960px){
+  .action-grid{grid-template-columns:1fr}
+  .tools-grid{grid-template-columns:1fr}
+}
+@media (max-width:768px){
+  body{flex-direction:column}
+  .navbar{position:fixed;left:-100%;top:0;width:min(78vw,300px);height:100vh;padding:24px 20px;z-index:60;transition:left .3s ease}
+  .navbar.open{left:0}
+  .rail-toggle{display:grid;place-items:center;position:fixed;top:16px;left:16px;width:44px;height:44px;border-radius:12px;background:var(--paper);color:var(--ink);border:none;font-size:1.05rem;cursor:pointer;z-index:70;box-shadow:0 6px 16px rgba(36,25,52,.2)}
+  .rail-overlay{display:none;position:fixed;inset:0;background:rgba(36,25,52,.45);z-index:50}
+  .rail-overlay.active{display:block}
+  .main-content{margin-left:0;max-width:100%;padding:80px 20px 48px}
+}
+</style>
+</head>
+<body>
+
+<button class="rail-toggle" id="railToggle" aria-label="Show menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+<div class="rail-overlay" id="railOverlay"></div>
+
+<nav class="navbar" id="rail">
+  <a href="index.html" class="navbar-brand">
+    <i class="fas fa-sun navbar-logo"></i>
+    <div>
+      <div class="navbar-title">UmeedBot</div>
+      <div class="navbar-subtitle">Employee Wellness Assistant</div>
+    </div>
+  </a>
+  <div class="navbar-nav">
+    <a href="dashboard.html" class="nav-link active"><i class="fas fa-home"></i><span>Dashboard</span></a>
+    <a href="quiz.html" class="nav-link"><i class="fas fa-clipboard-list"></i><span>Stress Assessment</span></a>
+    <a href="counselling.html" class="nav-link"><i class="fas fa-calendar-check"></i><span>Professional Support</span></a>
+    <a href="resources.html" class="nav-link"><i class="fas fa-book-open"></i><span>Wellness Resources</span></a>
+    <a href="aichat.html" class="nav-link"><i class="fas fa-robot"></i><span>AI Support Chat</span></a>
+    <a href="video.html" class="nav-link"><i class="fas fa-video"></i><span>Video Conference</span></a>
+    <a href="https://68e0664c49c3ffe874093600--stupendous-kangaroo-407e3b.netlify.app/" class="nav-link"><i class="fas fa-people-group"></i><span>UmeedBot Community</span></a>
+  </div>
+  <div class="rail-note">
+    <strong>Need help right now?</strong>
+    Tele-MANAS is free and open 24 hours — <span>14416</span>
+  </div>
+</nav>
+
+<div class="main-content">
+
+  <div class="dash-head">
+    <span class="eyebrow">Welcome back</span>
+    <h1>Your path to a <em>better week</em> starts here.</h1>
+    <p>Pick up an assessment, book a session, or just talk something through — everything on this page is private to you.</p>
+  </div>
+
+  <div class="action-grid">
+
+    <button class="action-card quiz" onclick="window.location.href='quiz.html'">
+      <div class="action-icon"><i class="fas fa-clipboard-list"></i></div>
+      <h3>Workplace stress assessment</h3>
+      <p>A quick check-in to understand where you're at right now, using standardized screening tools.</p>
+      <div class="scale-note">
+        <span>Scales used</span>
+        <div class="scale-chips">
+          <span class="scale-chip">PHQ-9<span class="tip">Patient Health Questionnaire-9: assesses depression severity</span></span>
+          <span class="scale-chip">GAD-7<span class="tip">Generalized Anxiety Disorder-7: measures anxiety symptoms</span></span>
+          <span class="scale-chip">GHQ-12<span class="tip">General Health Questionnaire-12: screens for general psychological distress</span></span>
+        </div>
+      </div>
+    </button>
+
+    <button class="action-card support" onclick="window.location.href='counselling.html'">
+      <div class="action-icon"><i class="fas fa-calendar-check"></i></div>
+      <h3>Professional support</h3>
+      <p>Book a confidential session with a licensed counsellor — no forms to explain yourself, no one at work finding out.</p>
+    </button>
+
+    <button class="action-card resources" onclick="window.location.href='resources.html'">
+      <div class="action-icon"><i class="fas fa-book-open"></i></div>
+      <h3>Wellness resources</h3>
+      <p>Articles, coping techniques, and work-life balance strategies you can work through at your own pace.</p>
+    </button>
+
+    <button class="action-card chat" onclick="window.location.href='aichat.html'">
+      <div class="action-icon"><i class="fas fa-robot"></i></div>
+      <h3>AI support chat</h3>
+      <p>Think out loud or get immediate guidance from UmeedBot, any hour of the day or night.</p>
+    </button>
+
+  </div>
+
+  <div class="info-panel">
+    <h2>About the assessment tools</h2>
+    <div class="tools-grid">
+      <div class="tool-card">
+        <h3>PHQ-9 · Depression</h3>
+        <p>A 9-item questionnaire that measures depression severity based on DSM-IV criteria.</p>
+      </div>
+      <div class="tool-card">
+        <h3>GAD-7 · Anxiety</h3>
+        <p>A 7-item scale that assesses anxiety symptoms and their severity.</p>
+      </div>
+      <div class="tool-card">
+        <h3>GHQ-12 · General health</h3>
+        <p>A 12-item screening tool for detecting general psychological distress.</p>
+      </div>
+    </div>
+    <p class="foot">All assessments are confidential and designed to help identify areas where support may be beneficial.</p>
+  </div>
+
+  <p class="encourage">Remember: your well-being matters. Taking care of yourself improves both your personal and professional life.</p>
+
+</div>
+
+<script>
+/* Mobile sidebar toggle */
+var rail=document.getElementById('rail'),
+    railToggle=document.getElementById('railToggle'),
+    railOverlay=document.getElementById('railOverlay');
+
+function openRail(){
+  rail.classList.add('open');
+  railOverlay.classList.add('active');
+  railToggle.setAttribute('aria-expanded','true');
+  railToggle.innerHTML='<i class="fas fa-xmark"></i>';
+}
+function closeRail(){
+  rail.classList.remove('open');
+  railOverlay.classList.remove('active');
+  railToggle.setAttribute('aria-expanded','false');
+  railToggle.innerHTML='<i class="fas fa-bars"></i>';
+}
+railToggle.addEventListener('click', function(){
+  rail.classList.contains('open') ? closeRail() : openRail();
+});
+railOverlay.addEventListener('click', closeRail);
+</script>
+</body>
+</html>

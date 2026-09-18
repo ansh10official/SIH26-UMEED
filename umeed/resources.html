@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wellness Resources — UmeedBot</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,500&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#241934;
+  --ink-2:#382650;
+  --rose:#C97B63;
+  --rose-deep:#AD5F49;
+  --marigold:#E8A33D;
+  --ivory:#FBF3EC;
+  --ivory-deep:#F3E3D3;
+  --mauve:#6B5470;
+  --taupe:#E7D3C2;
+  --body:#4A3F4E;
+  --muted:#8B7D8E;
+  --sage:#6F8F5B;
+  --paper:#FFFFFF;
+  --display:'Fraunces',Georgia,serif;
+  --sans:'Sora','Segoe UI',Tahoma,sans-serif;
+  --rail:270px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--ivory);color:var(--body);-webkit-font-smoothing:antialiased;display:flex;min-height:100vh;overflow-x:hidden}
+a{color:inherit}
+img{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--rose);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 48px}
+button{font:inherit}
+
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in-view{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{transition-duration:.01ms !important;animation-duration:.01ms !important}
+  .reveal{opacity:1;transform:none}
+}
+
+/* ---------- Sidebar (shared) ---------- */
+.navbar{width:var(--rail);background:var(--ink);color:var(--ivory);padding:32px 22px 24px;display:flex;flex-direction:column;height:100vh;position:fixed;left:0;top:0;overflow-y:auto;z-index:30}
+.navbar-brand{display:flex;align-items:center;gap:13px;text-decoration:none;padding-bottom:26px;margin-bottom:26px;border-bottom:1px solid rgba(251,243,236,.14)}
+.navbar-logo{font-size:18px;color:var(--ink);background:linear-gradient(140deg,var(--marigold),var(--rose));width:44px;height:44px;border-radius:15px 15px 15px 4px;display:grid;place-items:center;flex-shrink:0}
+.navbar-title{font-family:var(--display);font-style:italic;font-size:1.55rem;font-weight:500;line-height:1.1;letter-spacing:-.01em}
+.navbar-subtitle{font-size:.72rem;color:var(--rose);margin-top:3px;letter-spacing:.01em}
+.navbar-nav{display:flex;flex-direction:column;gap:3px;flex:1}
+.nav-link{color:rgba(251,243,236,.72);text-decoration:none;font-size:.93rem;padding:11px 14px;border-radius:11px;display:flex;align-items:center;gap:13px;transition:background-color .25s,color .25s}
+.nav-link i{width:18px;text-align:center;font-size:.92rem;opacity:.75}
+.nav-link:hover{background:rgba(201,123,99,.16);color:var(--ivory)}
+.nav-link.active{background:var(--rose);color:var(--ink);font-weight:600}
+.nav-link.active i{opacity:1;color:var(--ink)}
+.rail-note{margin-top:26px;padding:17px;border-radius:14px;background:rgba(232,163,61,.12);border:1px solid rgba(232,163,61,.22);font-size:.79rem;line-height:1.55;color:rgba(251,243,236,.85)}
+.rail-note strong{display:block;color:var(--ivory);font-weight:600;margin-bottom:3px}
+.rail-note span{color:var(--marigold);font-weight:600}
+.rail-toggle{display:none}
+
+/* ---------- Layout ---------- */
+.main-content{flex:1;margin-left:var(--rail);max-width:calc(100% - var(--rail));position:relative}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.85rem;color:var(--rose-deep);margin-bottom:18px;font-weight:500}
+.eyebrow::before{content:'';width:22px;height:1px;background:var(--marigold)}
+.section-title{font-family:var(--display);font-weight:400;font-size:clamp(2rem,3.4vw,2.85rem);line-height:1.08;letter-spacing:-.02em;margin-bottom:14px;color:var(--ink)}
+.section-subtitle{font-size:1.02rem;color:var(--body);line-height:1.72;max-width:56ch}
+
+/* ---------- Hero ---------- */
+#hero{padding:76px 0 40px;position:relative;overflow:hidden}
+.hero-decor{position:absolute;inset:0;pointer-events:none;z-index:0}
+.hero-decor svg{position:absolute}
+.hero-inner{position:relative;z-index:1;max-width:62ch}
+.hero-inner h1{font-family:var(--display);font-weight:400;font-size:clamp(2.4rem,4.2vw,3.4rem);line-height:1.08;letter-spacing:-.025em;color:var(--ink)}
+.hero-inner h1 em{font-style:italic;color:var(--rose-deep);font-weight:400}
+.hero-inner p{font-size:1.05rem;line-height:1.75;color:var(--body);margin-top:22px;max-width:52ch}
+
+/* ---------- Strip ---------- */
+.strip{background:var(--ink);position:relative;z-index:1;padding:34px 0;margin-top:26px}
+.strip-inner{display:flex;flex-wrap:wrap;gap:44px;align-items:baseline;justify-content:space-between}
+.stat{display:flex;align-items:baseline;gap:12px}
+.stat b{font-family:var(--display);font-style:italic;font-weight:400;font-size:2.1rem;color:var(--marigold)}
+.stat span{font-size:.88rem;color:rgba(251,243,236,.75);max-width:18ch;line-height:1.4}
+
+/* ---------- Categories ---------- */
+#categories{padding:88px 0 30px}
+.section-head{margin-bottom:44px}
+.categories-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.category-card{background:var(--paper);border-radius:26px;overflow:hidden;cursor:pointer;transition:transform .3s,box-shadow .3s;display:flex;flex-direction:column;border:1px solid var(--taupe)}
+.category-card:hover{transform:translateY(-6px);box-shadow:0 26px 48px -24px rgba(36,25,52,.35)}
+.category-media{position:relative;height:168px;overflow:hidden;border-radius:26px 26px 46% 8% / 26px 26px 30px 8px}
+.category-card:nth-of-type(2n) .category-media{border-radius:26px 26px 8% 46% / 26px 26px 8px 30px}
+.category-media img{width:100%;height:100%;object-fit:cover;filter:saturate(.94);transition:transform .5s ease}
+.category-card:hover .category-media img{transform:scale(1.06)}
+.category-media::after{content:'';position:absolute;inset:0;background:linear-gradient(200deg,rgba(36,25,52,.35),rgba(36,25,52,0) 55%)}
+.category-icon{position:absolute;left:16px;bottom:-20px;width:52px;height:52px;border-radius:16px 16px 16px 5px;display:grid;place-items:center;font-size:1.05rem;color:var(--ink);box-shadow:0 14px 26px -12px rgba(36,25,52,.5)}
+.category-body{padding:34px 22px 24px}
+.category-body h3{font-family:var(--display);font-size:1.3rem;font-weight:400;color:var(--ink);margin-bottom:10px;letter-spacing:-.01em}
+.category-body p{font-size:.9rem;color:var(--body);line-height:1.65;margin-bottom:16px}
+.video-count{display:inline-flex;align-items:center;gap:7px;font-size:.78rem;font-weight:600;color:var(--rose-deep);background:var(--ivory-deep);border:1px solid var(--taupe);border-radius:999px;padding:6px 14px}
+.video-count i{font-size:.7rem}
+
+/* ---------- Videos section ---------- */
+#videosSection{padding:20px 0 96px;display:none}
+#videosSection.active{display:block}
+.videos-panel{background:var(--ink);color:var(--ivory);border-radius:32px;padding:44px 44px 50px;position:relative;overflow:hidden}
+.videos-panel::before{content:'';position:absolute;bottom:-160px;right:-100px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(232,163,61,.16),rgba(232,163,61,0) 70%);pointer-events:none}
+.videos-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:18px;margin-bottom:34px;position:relative;z-index:1}
+.videos-header .eyebrow{color:var(--marigold);margin-bottom:8px}
+.videos-header h3{font-family:var(--display);font-weight:400;font-size:1.9rem;color:var(--ivory);letter-spacing:-.01em}
+.back-btn{font-family:var(--sans);font-size:.9rem;font-weight:600;color:var(--ink);background:var(--ivory);border:none;border-radius:999px;padding:12px 22px;cursor:pointer;display:inline-flex;align-items:center;gap:9px;transition:background-color .25s,transform .25s}
+.back-btn:hover{background:var(--marigold);transform:translateY(-2px)}
+.videos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;position:relative;z-index:1}
+.video-card{background:var(--ivory);border-radius:20px;overflow:hidden;cursor:pointer;transition:transform .3s,box-shadow .3s}
+.video-card:hover{transform:translateY(-5px);box-shadow:0 22px 40px -20px rgba(0,0,0,.45)}
+.video-thumbnail{position:relative;height:160px;overflow:hidden;background:var(--ivory-deep)}
+.video-thumbnail img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
+.video-card:hover .video-thumbnail img{transform:scale(1.06)}
+.play-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(36,25,52,.72);width:52px;height:52px;border-radius:50%;display:grid;place-items:center;color:var(--ivory);font-size:1.1rem;transition:background-color .25s,transform .25s}
+.video-card:hover .play-icon{background:var(--marigold);color:var(--ink);transform:translate(-50%,-50%) scale(1.08)}
+.video-duration{position:absolute;top:10px;right:10px;background:rgba(36,25,52,.78);color:var(--ivory);padding:3px 9px;border-radius:6px;font-size:.72rem}
+.video-info{padding:16px 18px 20px}
+.video-title{font-family:var(--display);font-size:1.02rem;font-weight:400;color:var(--ink);margin-bottom:8px;line-height:1.3}
+.video-description{font-size:.83rem;color:var(--muted);line-height:1.55}
+
+.page-foot{background:var(--ink);color:rgba(251,243,236,.72);padding:32px 0;font-size:.85rem;line-height:1.7}
+.page-foot .wrap{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1080px){
+  .categories-grid,.videos-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:768px){
+  body{flex-direction:column}
+  .navbar{position:sticky;top:0;width:100%;height:auto;padding:16px 20px;z-index:20}
+  .navbar-brand{margin-bottom:0;padding-bottom:0;border-bottom:none}
+  .rail-toggle{display:grid;place-items:center;position:absolute;right:18px;top:20px;width:40px;height:40px;border-radius:10px;background:rgba(201,123,99,.18);color:var(--ivory);border:none;font-size:1rem;cursor:pointer}
+  .navbar-nav{display:none;margin-top:18px;padding-top:16px;border-top:1px solid rgba(251,243,236,.14)}
+  .navbar.open .navbar-nav{display:flex}
+  .rail-note{display:none}
+  .navbar.open .rail-note{display:block}
+  .main-content{margin-left:0;max-width:100%}
+  .wrap{padding:0 22px}
+  #hero{padding:40px 0 30px}
+  #categories{padding:56px 0 20px}
+  .categories-grid,.videos-grid{grid-template-columns:1fr}
+  .videos-panel{padding:30px 22px 36px;border-radius:24px}
+  .strip-inner{gap:22px}
+}
+</style>
+</head>
+<body>
+<nav class="navbar" id="rail">
+  <a href="index.html" class="navbar-brand">
+    <i class="fas fa-sun navbar-logo"></i>
+    <div>
+      <div class="navbar-title">UmeedBot</div>
+      <div class="navbar-subtitle">Employee Wellness Assistant</div>
+    </div>
+  </a>
+  <button class="rail-toggle" id="railToggle" aria-label="Show menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+  <div class="navbar-nav">
+    <a href="dashboard.html" class="nav-link"><i class="fas fa-home"></i><span>Dashboard</span></a>
+    <a href="quiz.html" class="nav-link"><i class="fas fa-clipboard-list"></i><span>Stress Assessment</span></a>
+    <a href="counselling.html" class="nav-link"><i class="fas fa-calendar-check"></i><span>Professional Support</span></a>
+    <a href="resources.html" class="nav-link active"><i class="fas fa-book-open"></i><span>Wellness Resources</span></a>
+    <a href="aichat.html" class="nav-link"><i class="fas fa-robot"></i><span>AI Support Chat</span></a>
+  </div>
+  <div class="rail-note">
+    <strong>Need help right now?</strong>
+    Tele-MANAS is free and open 24 hours — <span>14416</span>
+  </div>
+</nav>
+
+<div class="main-content">
+
+  <section id="hero">
+    <div class="hero-decor" aria-hidden="true">
+      <svg width="260" height="260" style="top:-70px;right:6%;opacity:.5" viewBox="0 0 200 200"><path fill="#E8A33D" opacity=".18" d="M45,-59C59,-48,71,-33,74,-16C77,1,71,20,60,35C49,50,32,61,13,66C-6,71,-27,70,-43,59C-59,48,-70,27,-72,5C-74,-17,-67,-41,-52,-54C-37,-67,-14,-70,5,-72C24,-74,31,-70,45,-59Z" transform="translate(100 100)"/></svg>
+    </div>
+    <div class="wrap hero-inner reveal">
+      <span class="eyebrow">A library for the quiet hours</span>
+      <h1>Things worth watching when you <em>need a way in.</em></h1>
+      <p>Short, honest videos grouped by what's actually going on — work, family, money, the people in your life. Pick a category and start wherever feels closest.</p>
+    </div>
+  </section>
+
+  <div class="strip">
+    <div class="wrap strip-inner">
+      <div class="stat"><b>6</b><span>categories of curated guidance</span></div>
+      <div class="stat"><b>30</b><span>videos, 12–22 minutes each</span></div>
+      <div class="stat"><b>24/7</b><span>available whenever you need it</span></div>
+    </div>
+  </div>
+
+  <section id="categories">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Browse by topic</span>
+        <h2 class="section-title">Start with what feels closest</h2>
+        <p class="section-subtitle">Every category holds five short videos. Tap one to open it — nothing is tracked or shared.</p>
+      </div>
+
+      <div class="categories-grid" id="categoriesGrid">
+        <div class="category-card reveal" data-category="career">
+          <div class="category-media">
+            <img src="https://images.unsplash.com/photo-1470137660724-c60a8b7fc53e?auto=format&fit=crop&w=700&q=80" alt="">
+            <span class="category-icon" style="background:var(--marigold)"><i class="fas fa-briefcase"></i></span>
+          </div>
+          <div class="category-body">
+            <h3>Career Counseling</h3>
+            <p>Navigating career challenges, finding purpose, and growing professionally without losing yourself.</p>
+            <span class="video-count"><i class="fas fa-play"></i>5 videos</span>
+          </div>
+        </div>
+
+        <div class="category-card reveal" data-category="trauma">
+          <div class="category-media">
+            <img src="https://images.unsplash.com/photo-1491575509428-5cc7d3e4076b?auto=format&fit=crop&w=700&q=80" alt="">
+            <span class="category-icon" style="background:var(--rose-deep);color:var(--ivory)"><i class="fas fa-child"></i></span>
+          </div>
+          <div class="category-body">
+            <h3>Childhood Trauma</h3>
+            <p>Understanding and healing from early experiences that continue to shape your life today.</p>
+            <span class="video-count"><i class="fas fa-play"></i>5 videos</span>
+          </div>
+        </div>
+
+        <div class="category-card reveal" data-category="relationships">
+          <div class="category-media">
+            <img src="https://images.unsplash.com/photo-1523651636407-1c94c6eb5f5c?auto=format&fit=crop&w=700&q=80" alt="">
+            <span class="category-icon" style="background:var(--rose)"><i class="fas fa-heart"></i></span>
+          </div>
+          <div class="category-body">
+            <h3>Bad Relationships</h3>
+            <p>Recognising, addressing and healing from patterns that leave you feeling smaller.</p>
+            <span class="video-count"><i class="fas fa-play"></i>5 videos</span>
+          </div>
+        </div>
+
+        <div class="category-card reveal" data-category="loneliness">
+          <div class="category-media">
+            <img src="https://images.unsplash.com/photo-1762539683985-de22c1e2358f?auto=format&fit=crop&w=700&q=80" alt="">
+            <span class="category-icon" style="background:var(--mauve);color:var(--ivory)"><i class="fas fa-user"></i></span>
+          </div>
+          <div class="category-body">
+            <h3>Loneliness</h3>
+            <p>Coping with isolation and building connections that actually feel like something.</p>
+            <span class="video-count"><i class="fas fa-play"></i>5 videos</span>
+          </div>
+        </div>
+
+        <div class="category-card reveal" data-category="financial">
+          <div class="category-media">
+            <img src="https://images.unsplash.com/photo-1549043671-1e4550948355?auto=format&fit=crop&w=700&q=80" alt="">
+            <span class="category-icon" style="background:var(--sage);color:var(--ivory)"><i class="fas fa-money-bill-wave"></i></span>
+          </div>
+          <div class="category-body">
+            <h3>Financial Stress</h3>
+            <p>Managing money anxiety and building habits that bring a little more peace of mind.</p>
+            <span class="video-count"><i class="fas fa-play"></i>5 videos</span>
+          </div>
+        </div>
+
+        <div class="category-card reveal" data-category="identity">
+          <div class="category-media">
+            <img src="https://images.unsplash.com/photo-1667996113116-02fe641c5528?auto=format&fit=crop&w=700&q=80" alt="">
+            <span class="category-icon" style="background:var(--ink-2);color:var(--ivory)"><i class="fas fa-search"></i></span>
+          </div>
+          <div class="category-body">
+            <h3>Identity Crisis / Self Worth</h3>
+            <p>Exploring who you are, building self-worth, and finding your way back to yourself.</p>
+            <span class="video-count"><i class="fas fa-play"></i>5 videos</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="videosSection">
+    <div class="wrap">
+      <div class="videos-panel">
+        <div class="videos-header">
+          <div>
+            <span class="eyebrow">Now browsing</span>
+            <h3 id="videosCategoryTitle">Category Videos</h3>
+          </div>
+          <button class="back-btn" id="backToCategories"><i class="fas fa-arrow-left"></i> Back to categories</button>
+        </div>
+        <div class="videos-grid" id="videosGrid"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="page-foot">
+    <div class="wrap">
+      <span>Videos open on YouTube in a new tab. Nothing you watch here appears on your dashboard.</span>
+      <span>Urgent help: Tele-MANAS, 14416</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* Sidebar */
+var rail=document.getElementById('rail'),railToggle=document.getElementById('railToggle');
+railToggle.addEventListener('click',function(){
+  var open=rail.classList.toggle('open');
+  railToggle.setAttribute('aria-expanded',open);
+  railToggle.innerHTML=open?'<i class="fas fa-xmark"></i>':'<i class="fas fa-bars"></i>';
+});
+
+// Video data organized by category
+const videoData = {
+    career: [
+        { title: "Finding Your Career Path", url: "https://youtu.be/CPAhCOMhJds", description: "Guidance on discovering your true career calling.", duration: "12:45" },
+        { title: "Overcoming Career Obstacles", url: "https://youtu.be/O3m14PVOq_g", description: "Strategies to navigate challenges in your professional life.", duration: "15:30" },
+        { title: "Career Transition Tips", url: "https://youtu.be/zhpcgpqWc1Q", description: "How to successfully change careers at any stage of life.", duration: "18:15" },
+        { title: "Work-Life Balance", url: "https://youtu.be/pu__97bVyOc", description: "Achieving harmony between your professional and personal life.", duration: "14:20" },
+        { title: "Building Professional Confidence", url: "https://youtu.be/moQnoSYPMmY", description: "Developing self-assurance in your career abilities.", duration: "16:40" }
+    ],
+    trauma: [
+        { title: "Understanding Childhood Trauma", url: "https://youtu.be/USE89i0kiiQ", description: "How early experiences shape our adult lives.", duration: "18:30" },
+        { title: "Healing from Trauma", url: "https://youtu.be/tUpkNQVbcOI", description: "Therapeutic approaches to recovery.", duration: "22:10" },
+        { title: "Breaking Trauma Patterns", url: "https://youtu.be/5pzcRH665Lw", description: "Identifying and changing negative cycles.", duration: "19:45" },
+        { title: "Self-Care After Trauma", url: "https://youtu.be/lULd-wnWjT4", description: "Essential practices for healing and recovery.", duration: "16:25" },
+        { title: "Building Resilience", url: "https://youtu.be/4DUkpWgcR8s", description: "Developing strength after difficult experiences.", duration: "20:15" }
+    ],
+    relationships: [
+        { title: "Recognizing Unhealthy Relationships", url: "https://www.youtube.com/watch?v=Vn7kPQ_8roE", description: "Identifying red flags in relationships.", duration: "15:20" },
+        { title: "Setting Healthy Boundaries", url: "https://www.youtube.com/watch?v=XFAEeOd3H9k", description: "Establishing limits for healthier connections.", duration: "17:35" },
+        { title: "Healing After a Bad Relationship", url: "https://www.youtube.com/watch?v=WubtvnKdtgE", description: "Recovery process after difficult relationships.", duration: "19:50" },
+        { title: "Rebuilding Trust", url: "hhttps://www.youtube.com/watch?v=rgQvqi6aYD8s", description: "Restoring faith in relationships after hurt.", duration: "14:40" },
+        { title: "Healthy Communication Patterns", url: "https://www.youtube.com/watch?v=lg48Bi9DA54", description: "Developing positive ways to connect with others.", duration: "16:55" }
+    ],
+    loneliness: [
+        { title: "Understanding Loneliness", url: "https://www.youtube.com/watch?v=n3Xv_g3g-mA", description: "The psychology behind feelings of isolation.", duration: "13:25" },
+        { title: "Coping with Loneliness", url: "https://www.youtube.com/watch?v=TWNL7EClClo", description: "Practical strategies to manage feelings of isolation.", duration: "18:10" },
+        { title: "Building Social Connections", url: "https://www.youtube.com/watch?v=j4avMJ_hemk", description: "How to form meaningful relationships.", duration: "15:45" },
+        { title: "Loneliness and Mental Health", url: "https://www.youtube.com/watch?v=sfA3TQXvN6E", description: "The connection between isolation and wellbeing.", duration: "20:30" },
+        { title: "Finding Comfort in Solitude", url: "https://www.youtube.com/watch?v=R5dlnHwmCds", description: "Transforming alone time into positive experiences.", duration: "14:15" }
+    ],
+    financial: [
+        { title: "Managing Financial Anxiety", url: "https://www.youtube.com/watch?v=etgNcQcDf3Q", description: "Coping strategies for money-related stress.", duration: "16:20" },
+        { title: "Budgeting for Peace of Mind", url: "https://www.youtube.com/watch?v=fwqTENls75g", description: "Creating a financial plan that reduces stress.", duration: "19:05" },
+        { title: "Overcoming Financial Shame", url: "https://www.youtube.com/watch?v=vGD8Wne1F-Q", description: "Addressing emotional aspects of money struggles.", duration: "17:40" },
+        { title: "Financial Goal Setting", url: "https://www.youtube.com/watch?v=MabD5R8kRak", description: "Creating achievable financial objectives.", duration: "15:10" },
+        { title: "Mindful Spending Habits", url: "https://www.youtube.com/watch?v=J0vm3O12Rpk", description: "Developing conscious approaches to money.", duration: "18:55" }
+    ],
+    identity: [
+        { title: "Understanding Identity Crisis", url: "https://www.youtube.com/watch?v=L5lsYI0Q8zw", description: "What happens when you question who you are.", duration: "21:15" },
+        { title: "Building Self-Worth", url: "https://www.youtube.com/watch?v=yi5E5a2Ky7k", description: "Developing a healthy sense of self-value.", duration: "16:30" },
+        { title: "Rediscovering Your Passions", url: "https://www.youtube.com/watch?v=kD3-DKkiVeA", description: "Reconnecting with what truly matters to you.", duration: "14:50" },
+        { title: "Authentic Living", url: "https://www.youtube.com/watch?v=6BosAoj__V8", description: "Aligning your life with your true self.", duration: "19:25" },
+        { title: "Overcoming Imposter Syndrome", url: "https://www.youtube.com/watch?v=ZQUxL4Jm1Lo", description: "Addressing feelings of inadequacy and self-doubt.", duration: "17:10" }
+    ]
+};
+
+const categoryTitles = {
+    career: "Career Counseling",
+    trauma: "Childhood Trauma",
+    relationships: "Bad Relationships",
+    loneliness: "Loneliness",
+    financial: "Financial Stress",
+    identity: "Identity Crisis / Self Worth"
+};
+
+const categoriesGrid = document.getElementById('categoriesGrid');
+const videosSection = document.getElementById('videosSection');
+const videosGrid = document.getElementById('videosGrid');
+const videosCategoryTitle = document.getElementById('videosCategoryTitle');
+const backToCategories = document.getElementById('backToCategories');
+
+document.querySelectorAll('.category-card').forEach(card => {
+    card.addEventListener('click', function () {
+        const category = this.getAttribute('data-category');
+        showVideos(category);
+    });
+});
+
+backToCategories.addEventListener('click', function () {
+    videosSection.classList.remove('active');
+    document.getElementById('categories').scrollIntoView({ behavior: 'smooth' });
+});
+
+function showVideos(category) {
+    videosCategoryTitle.textContent = categoryTitles[category] + ' Videos';
+    videosGrid.innerHTML = '';
+
+    const videos = videoData[category];
+
+    videos.forEach(video => {
+        const videoId = extractVideoId(video.url);
+        const videoCard = document.createElement('div');
+        videoCard.className = 'video-card';
+        videoCard.innerHTML = `
+            <div class="video-thumbnail">
+                <img src="https://img.youtube.com/vi/${videoId}/hqdefault.jpg" alt="${video.title}">
+                <div class="play-icon"><i class="fas fa-play"></i></div>
+                <div class="video-duration">${video.duration}</div>
+            </div>
+            <div class="video-info">
+                <h4 class="video-title">${video.title}</h4>
+                <p class="video-description">${video.description}</p>
+            </div>
+        `;
+        videoCard.addEventListener('click', function () {
+            window.open(video.url, '_blank');
+        });
+        videosGrid.appendChild(videoCard);
+    });
+
+    videosSection.classList.add('active');
+    videosSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+function extractVideoId(url) {
+    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[7].length === 11) ? match[7] : null;
+}
+
+/* Scroll reveal */
+(function(){
+  var els=[].slice.call(document.querySelectorAll('.reveal'));
+  if(!('IntersectionObserver' in window)||window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    els.forEach(function(el){el.classList.add('in-view');});
+    return;
+  }
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){entry.target.classList.add('in-view');io.unobserve(entry.target);}
+    });
+  },{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+  els.forEach(function(el){io.observe(el);});
+})();
+</script>
+</body>
+</html>

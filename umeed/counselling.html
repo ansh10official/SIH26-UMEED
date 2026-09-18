@@ -1,0 +1,693 @@
+<!-- COUNSELLING CODE WORKING AND FIXED -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Professional Support — UmeedBot</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,500&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#241934;
+  --ink-2:#382650;
+  --rose:#C97B63;
+  --rose-deep:#AD5F49;
+  --marigold:#E8A33D;
+  --ivory:#FBF3EC;
+  --ivory-deep:#F3E3D3;
+  --mauve:#6B5470;
+  --taupe:#E7D3C2;
+  --body:#4A3F4E;
+  --muted:#8B7D8E;
+  --sage:#6F8F5B;
+  --paper:#FFFFFF;
+  --display:'Fraunces',Georgia,serif;
+  --sans:'Sora','Segoe UI',Tahoma,sans-serif;
+  --rail:270px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--ivory);color:var(--body);-webkit-font-smoothing:antialiased;display:flex;min-height:100vh;overflow-x:hidden}
+a{color:inherit}
+img{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--rose);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 48px}
+
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in-view{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{transition-duration:.01ms !important;animation-duration:.01ms !important}
+  .reveal{opacity:1;transform:none}
+}
+
+/* ---------- Sidebar ---------- */
+.navbar{width:var(--rail);background:var(--ink);color:var(--ivory);padding:32px 22px 24px;display:flex;flex-direction:column;height:100vh;position:fixed;left:0;top:0;overflow-y:auto;z-index:30}
+.navbar-brand{display:flex;align-items:center;gap:13px;text-decoration:none;padding-bottom:26px;margin-bottom:26px;border-bottom:1px solid rgba(251,243,236,.14)}
+.navbar-logo{font-size:18px;color:var(--ink);background:linear-gradient(140deg,var(--marigold),var(--rose));width:44px;height:44px;border-radius:15px 15px 15px 4px;display:grid;place-items:center;flex-shrink:0}
+.navbar-title{font-family:var(--display);font-style:italic;font-size:1.55rem;font-weight:500;line-height:1.1;letter-spacing:-.01em}
+.navbar-subtitle{font-size:.72rem;color:var(--rose);margin-top:3px;letter-spacing:.01em}
+.navbar-nav{display:flex;flex-direction:column;gap:3px;flex:1}
+.nav-link{color:rgba(251,243,236,.72);text-decoration:none;font-size:.93rem;padding:11px 14px;border-radius:11px;display:flex;align-items:center;gap:13px;transition:background-color .25s,color .25s}
+.nav-link i{width:18px;text-align:center;font-size:.92rem;opacity:.75}
+.nav-link:hover{background:rgba(201,123,99,.16);color:var(--ivory)}
+.nav-link.active{background:var(--rose);color:var(--ink);font-weight:600}
+.nav-link.active i{opacity:1;color:var(--ink)}
+.rail-note{margin-top:26px;padding:17px;border-radius:14px;background:rgba(232,163,61,.12);border:1px solid rgba(232,163,61,.22);font-size:.79rem;line-height:1.55;color:rgba(251,243,236,.85)}
+.rail-note strong{display:block;color:var(--ivory);font-weight:600;margin-bottom:3px}
+.rail-note span{color:var(--marigold);font-weight:600}
+.rail-toggle{display:none}
+
+/* ---------- Layout ---------- */
+.main-content{flex:1;margin-left:var(--rail);max-width:calc(100% - var(--rail));position:relative}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.85rem;color:var(--rose-deep);margin-bottom:18px;font-weight:500}
+.eyebrow::before{content:'';width:22px;height:1px;background:var(--marigold)}
+.section-title{font-family:var(--display);font-weight:400;font-size:clamp(2rem,3.4vw,2.85rem);line-height:1.08;letter-spacing:-.02em;margin-bottom:14px;color:var(--ink)}
+.section-subtitle{font-size:1.02rem;color:var(--body);line-height:1.72;max-width:56ch}
+
+/* ---------- Hero ---------- */
+#hero{padding:76px 0 40px;position:relative;overflow:hidden}
+.hero-decor{position:absolute;inset:0;pointer-events:none;z-index:0}
+.hero-decor svg{position:absolute}
+.hero-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.92fr);gap:20px;align-items:center;position:relative;z-index:1}
+.hero-copy .eyebrow{color:var(--rose-deep)}
+.hero-copy h1{font-family:var(--display);font-weight:400;font-size:clamp(2.5rem,4.6vw,3.7rem);line-height:1.06;letter-spacing:-.025em;color:var(--ink)}
+.hero-copy h1 em{font-style:italic;color:var(--rose-deep);font-weight:400}
+.hero-copy .subtitle{font-size:1.05rem;line-height:1.75;color:var(--body);margin-top:24px;max-width:44ch}
+#bookingDiv{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px}
+.btn{font-family:var(--sans);font-size:.97rem;font-weight:600;border-radius:999px;height:54px;padding:0 30px;cursor:pointer;border:1px solid transparent;transition:background-color .25s,border-color .25s,transform .25s}
+.btn:hover{transform:translateY(-2px)}
+#book{color:var(--ivory);background:var(--ink)}
+#book:hover{background:var(--rose-deep)}
+#learn{color:var(--ink);background:transparent;border-color:var(--taupe)}
+#learn:hover{background:var(--ivory-deep);border-color:var(--rose)}
+
+.hero-visual{position:relative;min-height:520px}
+.hero-photo{position:relative;border-radius:64% 36% 58% 42% / 46% 52% 48% 54%;overflow:hidden;height:480px;box-shadow:0 40px 70px -30px rgba(36,25,52,.45)}
+.hero-photo img{width:100%;height:100%;object-fit:cover;filter:saturate(.94)}
+.hero-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(200deg,rgba(36,25,52,.28),rgba(201,123,99,.06) 55%,rgba(232,163,61,.1));mix-blend-mode:multiply}
+#breath{position:absolute;left:-58px;bottom:-38px;width:210px;aspect-ratio:1;display:grid;place-items:center;background:var(--paper);border-radius:50%;box-shadow:0 26px 50px -20px rgba(36,25,52,.4);padding:10px}
+.breath .ring{position:absolute;border-radius:50%;border:1px solid var(--rose);opacity:.4;transition:transform 4s ease-in-out,opacity 4s ease-in-out}
+.breath .ring:nth-of-type(1){inset:4%}
+.breath .ring:nth-of-type(2){inset:15%;border-color:var(--marigold)}
+.breath .ring:nth-of-type(3){inset:26%}
+.breath.inhale .ring{transform:scale(1.1);opacity:.85}
+.breath.hold .ring{transform:scale(1.1);opacity:.85;transition-duration:7s}
+.breath.exhale .ring{transform:scale(1);opacity:.35;transition-duration:8s}
+.breath-core{position:relative;width:70%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 28%,#FFFDF9,var(--ivory-deep));display:grid;place-items:center;align-content:center;text-align:center;padding:10px;gap:4px}
+#breathPhase{font-family:var(--display);font-style:italic;font-size:1.02rem;color:var(--rose-deep);line-height:1.2}
+#breathCount{font-size:.68rem;color:var(--muted)}
+.breath-start{margin-top:6px;background:none;border:none;font-family:var(--sans);font-size:.7rem;font-weight:600;color:var(--rose-deep);cursor:pointer;border-bottom:1px solid var(--marigold);padding-bottom:2px}
+
+/* ---------- Strip ---------- */
+.strip{background:var(--ink);position:relative;z-index:1;padding:34px 0;margin-top:26px}
+.strip-inner{display:flex;flex-wrap:wrap;gap:44px;align-items:baseline;justify-content:space-between}
+.stat{display:flex;align-items:baseline;gap:12px}
+.stat b{font-family:var(--display);font-style:italic;font-weight:400;font-size:2.1rem;color:var(--marigold)}
+.stat span{font-size:.88rem;color:rgba(251,243,236,.75);max-width:16ch;line-height:1.4}
+
+/* ---------- Storytelling features ---------- */
+#features{padding:88px 0 90px;display:flex;flex-direction:column;gap:78px}
+.feature.story{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1fr);gap:56px;align-items:center}
+.feature.story:nth-of-type(2){grid-template-columns:minmax(0,1fr) minmax(0,.92fr)}
+.feature.story:nth-of-type(2) .story-media{order:2}
+.feature.story:nth-of-type(2) .story-text{order:1}
+.story-media{border-radius:28px;overflow:hidden;position:relative;box-shadow:0 30px 60px -30px rgba(36,25,52,.4)}
+.story-media img{width:100%;height:380px;object-fit:cover}
+.feature.story:nth-of-type(1) .story-media{border-radius:28px 90px 28px 90px}
+.feature.story:nth-of-type(2) .story-media{border-radius:90px 28px 90px 28px}
+.feature.story:nth-of-type(3) .story-media{border-radius:28px}
+.story-no{font-family:var(--display);font-style:italic;color:var(--marigold);font-size:1rem;display:block;margin-bottom:10px}
+.story-text b{display:block;font-family:var(--display);font-size:1.9rem;font-weight:400;color:var(--ink);margin-bottom:14px;letter-spacing:-.01em;line-height:1.15}
+.story-text p{font-size:1rem;color:var(--body);line-height:1.75;max-width:42ch}
+
+/* ---------- Counsellors ---------- */
+#counsellors{background:var(--ink);color:var(--ivory);padding:90px 0 96px;position:relative;overflow:hidden}
+#counsellors .section-title{color:var(--ivory)}
+#counsellors .section-subtitle{color:rgba(251,243,236,.72)}
+#counsellors .eyebrow{color:var(--marigold)}
+.section-head{margin-bottom:36px}
+.finder{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:14px}
+.search{position:relative;flex:1;min-width:240px}
+.search i{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.85rem}
+.search input{width:100%;font-family:var(--sans);font-size:.95rem;color:var(--ink);background:var(--ivory);border:1px solid transparent;border-radius:999px;padding:14px 18px 14px 42px}
+.search input::placeholder{color:#a698a9}
+.search input:focus{outline:none;box-shadow:0 0 0 2px var(--rose)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:var(--sans);font-size:.84rem;color:var(--ivory);background:rgba(251,243,236,.06);border:1px solid rgba(251,243,236,.2);border-radius:999px;padding:9px 17px;cursor:pointer;transition:background-color .2s,color .2s,border-color .2s}
+.chip:hover{border-color:var(--rose)}
+.chip[aria-pressed="true"]{background:var(--rose);border-color:var(--rose);color:var(--ink);font-weight:600}
+.result-count{font-size:.85rem;color:rgba(251,243,236,.6);margin:16px 0 26px}
+
+#counsellorCardSpace{display:grid;grid-template-columns:repeat(6,1fr);gap:20px}
+.counsellorCard{background:var(--ivory);color:var(--ink);border-radius:24px;padding:28px;display:grid;grid-template-columns:96px minmax(0,1fr);gap:22px;transition:transform .3s,box-shadow .3s;grid-column:span 3}
+.counsellorCard:nth-of-type(1){grid-column:span 6;grid-template-columns:180px minmax(0,1fr) 220px;align-items:center;background:linear-gradient(120deg,var(--ivory) 55%,var(--ivory-deep))}
+.counsellorCard:nth-of-type(1) .counsellorImage{width:180px;height:180px}
+.counsellorCard:hover{transform:translateY(-6px);box-shadow:0 24px 48px -22px rgba(0,0,0,.45)}
+.counsellorCard[hidden]{display:none}
+.counsellorImage{width:96px;height:96px;border-radius:38% 62% 60% 40% / 46% 40% 60% 54%;overflow:hidden;background:var(--ivory-deep);flex-shrink:0}
+.counsellorImage img{width:100%;height:100%;object-fit:cover}
+.counsellorsDetails h4{font-family:var(--display);font-size:1.4rem;font-weight:400;letter-spacing:-.01em;margin-bottom:6px;color:var(--ink)}
+.meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.rating{color:var(--marigold);font-size:.78rem;letter-spacing:1px}
+.counsellorsDetails p{font-size:.84rem;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tag{border:1px solid var(--taupe);color:var(--rose-deep);padding:4px 12px;border-radius:999px;font-size:.75rem}
+.intro p{font-size:.9rem;color:var(--body);line-height:1.6;max-width:60ch}
+.book-col{display:flex;flex-direction:column;gap:10px;margin-top:14px;grid-column:1/-1}
+.counsellorCard:nth-of-type(1) .book-col{grid-column:auto;margin-top:0}
+.slot-label{font-size:.75rem;color:var(--muted)}
+.slots{display:flex;flex-wrap:wrap;gap:6px}
+.slot{font-family:var(--sans);font-size:.78rem;color:var(--ink);background:var(--ivory-deep);border:1px solid var(--taupe);border-radius:8px;padding:7px 11px;cursor:pointer;transition:background-color .2s,color .2s,border-color .2s}
+.slot:hover{border-color:var(--rose)}
+.slot[aria-pressed="true"]{background:var(--rose);border-color:var(--rose);color:var(--ivory)}
+.Appointment{font-family:var(--sans);background:var(--ink);color:var(--ivory);font-size:.9rem;font-weight:600;border:none;border-radius:999px;padding:13px 20px;cursor:pointer;transition:background-color .25s;width:100%}
+.Appointment:hover{background:var(--rose-deep)}
+.empty{background:rgba(251,243,236,.06);border:1px dashed rgba(251,243,236,.25);border-radius:20px;padding:34px;text-align:center;color:rgba(251,243,236,.75);font-size:.95rem;margin-top:16px;grid-column:1/-1}
+.empty button{background:none;border:none;color:var(--marigold);font-family:var(--sans);font-size:.95rem;font-weight:600;cursor:pointer;border-bottom:1px solid var(--marigold)}
+
+/* ---------- Steps (timeline) ---------- */
+#how{padding:96px 0 90px;position:relative}
+.steps{position:relative;margin-top:52px;display:flex;flex-direction:column;gap:56px}
+.steps::before{content:'';position:absolute;left:38px;top:8px;bottom:8px;width:1px;background:repeating-linear-gradient(to bottom,var(--taupe) 0 8px,transparent 8px 16px)}
+.step{position:relative;padding-left:96px;max-width:62ch}
+.step-no{position:absolute;left:0;top:-6px;width:76px;height:76px;border-radius:50%;background:var(--ivory-deep);display:grid;place-items:center;font-family:var(--display);font-style:italic;font-size:1.5rem;color:var(--rose-deep);border:1px solid var(--taupe)}
+.step:nth-child(2){padding-left:150px}
+.step:nth-child(2) .step-no{left:64px}
+.step h3{font-family:var(--display);font-weight:400;font-size:1.5rem;margin-bottom:10px;color:var(--ink)}
+.step p{font-size:.96rem;color:var(--body);line-height:1.7}
+
+/* ---------- Voices ---------- */
+#voices{background:linear-gradient(155deg,var(--ink),var(--ink-2));color:var(--ivory);padding:96px 0;position:relative;overflow:hidden}
+#voices::before{content:'';position:absolute;bottom:-160px;left:-90px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(232,163,61,.18),rgba(232,163,61,0) 70%);pointer-events:none}
+#voices::after{content:'';position:absolute;top:-140px;right:-100px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(201,123,99,.16),rgba(201,123,99,0) 70%);pointer-events:none}
+.quote-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:60px;align-items:center;position:relative;z-index:1}
+.quote-who-row{display:flex;align-items:center;gap:14px;margin-top:26px}
+.quote-avatar{width:46px;height:46px;border-radius:50%;overflow:hidden;border:2px solid var(--marigold);flex-shrink:0}
+.quote-avatar img{width:100%;height:100%;object-fit:cover}
+.quote{font-family:var(--display);font-weight:300;font-style:italic;font-size:clamp(1.5rem,2.5vw,2.1rem);line-height:1.4;max-width:22ch;letter-spacing:-.01em}
+.who{font-size:.88rem;color:var(--marigold)}
+.quote-nav{display:flex;gap:8px;margin-top:28px}
+.dot{width:9px;height:9px;border-radius:50%;border:1px solid var(--marigold);background:transparent;cursor:pointer;padding:0}
+.dot[aria-pressed="true"]{background:var(--marigold)}
+.pledge{display:flex;flex-direction:column;gap:18px}
+.pledge div{display:flex;gap:14px;align-items:flex-start;font-size:.95rem;line-height:1.6;color:rgba(251,243,236,.82);border-bottom:1px solid rgba(251,243,236,.12);padding-bottom:18px}
+.pledge div:last-child{border-bottom:none;padding-bottom:0}
+.pledge i{color:var(--marigold);margin-top:4px}
+
+/* ---------- CTA band ---------- */
+#cta-band{position:relative;padding:120px 0;overflow:hidden}
+.cta-bg{position:absolute;inset:0;z-index:0}
+.cta-bg img{width:100%;height:100%;object-fit:cover}
+.cta-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(120deg,rgba(36,25,52,.88),rgba(36,25,52,.55) 60%,rgba(201,123,99,.35))}
+.cta-inner{position:relative;z-index:1;max-width:640px}
+.cta-inner .eyebrow{color:var(--marigold)}
+.cta-inner h2{font-family:var(--display);font-weight:300;font-style:italic;color:var(--ivory);font-size:clamp(2rem,3.6vw,3rem);line-height:1.15;margin-bottom:20px}
+.cta-inner p{color:rgba(251,243,236,.82);font-size:1.03rem;line-height:1.7;max-width:48ch;margin-bottom:30px}
+.cta-inner .btn{background:var(--marigold);color:var(--ink)}
+.cta-inner .btn:hover{background:var(--rose)}
+
+/* ---------- FAQ ---------- */
+#faq{padding:92px 0 96px}
+.faq-list{margin-top:36px;display:flex;flex-direction:column;gap:0}
+details{border-bottom:1px solid var(--taupe);display:grid;grid-template-columns:52px 1fr}
+details summary{grid-column:2;list-style:none;cursor:pointer;padding:24px 0;font-family:var(--display);font-size:1.24rem;font-weight:400;display:flex;justify-content:space-between;gap:20px;align-items:center;color:var(--ink)}
+details .faq-no{grid-column:1;font-family:var(--display);font-style:italic;color:var(--marigold);font-size:1rem;padding-top:26px}
+summary::-webkit-details-marker{display:none}
+summary i{color:var(--rose-deep);font-size:.85rem;transition:transform .25s}
+details[open] summary i{transform:rotate(45deg)}
+details p{grid-column:2;padding:0 0 26px;font-size:.96rem;color:var(--body);line-height:1.72;max-width:64ch}
+
+.page-foot{background:var(--ink);color:rgba(251,243,236,.72);padding:32px 0;font-size:.85rem;line-height:1.7}
+.page-foot .wrap{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+/* ---------- Responsive ---------- */
+@media (max-width:960px){
+  .hero-wrap,.quote-grid,.feature.story,.feature.story:nth-of-type(2){grid-template-columns:1fr;gap:36px}
+  .feature.story:nth-of-type(2) .story-media,.feature.story:nth-of-type(2) .story-text{order:0}
+  .hero-visual{min-height:420px}
+  #breath{left:12px;bottom:-30px;width:180px}
+  #counsellorCardSpace{grid-template-columns:1fr}
+  .counsellorCard,.counsellorCard:nth-of-type(1){grid-column:span 1 !important;grid-template-columns:80px minmax(0,1fr) !important}
+  .counsellorCard:nth-of-type(1) .counsellorImage{width:80px;height:80px}
+  .counsellorCard:nth-of-type(1) .book-col{grid-column:1/-1 !important;margin-top:14px}
+  .step:nth-child(2){padding-left:96px}
+  .step:nth-child(2) .step-no{left:0}
+}
+@media (max-width:768px){
+  body{flex-direction:column}
+  .navbar{position:sticky;top:0;width:100%;height:auto;padding:16px 20px;z-index:20}
+  .navbar-brand{margin-bottom:0;padding-bottom:0;border-bottom:none}
+  .rail-toggle{display:grid;place-items:center;position:absolute;right:18px;top:20px;width:40px;height:40px;border-radius:10px;background:rgba(201,123,99,.18);color:var(--ivory);border:none;font-size:1rem;cursor:pointer}
+  .navbar-nav{display:none;margin-top:18px;padding-top:16px;border-top:1px solid rgba(251,243,236,.14)}
+  .navbar.open .navbar-nav{display:flex}
+  .rail-note{display:none}
+  .navbar.open .rail-note{display:block}
+  .main-content{margin-left:0;max-width:100%}
+  .wrap{padding:0 22px}
+  #hero{padding:40px 0 30px}
+  #features,#counsellors,#how,#voices,#faq,#cta-band{padding:56px 0}
+  .strip-inner{gap:22px}
+}
+</style>
+</head>
+<body>
+<nav class="navbar" id="rail">
+  <a href="index.html" class="navbar-brand">
+    <i class="fas fa-sun navbar-logo"></i>
+    <div>
+      <div class="navbar-title">UmeedBot</div>
+      <div class="navbar-subtitle">Employee Wellness Assistant</div>
+    </div>
+  </a>
+  <button class="rail-toggle" id="railToggle" aria-label="Show menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+  <div class="navbar-nav">
+    <a href="dashboard.html" class="nav-link"><i class="fas fa-home"></i><span>Dashboard</span></a>
+    <a href="quiz.html" class="nav-link"><i class="fas fa-clipboard-list"></i><span>Stress Assessment</span></a>
+    <a href="counselling.html" class="nav-link active"><i class="fas fa-calendar-check"></i><span>Professional Support</span></a>
+    <a href="resources.html" class="nav-link"><i class="fas fa-book-open"></i><span>Wellness Resources</span></a>
+    <a href="aichat.html" class="nav-link"><i class="fas fa-robot"></i><span>AI Support Chat</span></a>
+  </div>
+  <div class="rail-note">
+    <strong>Need help right now?</strong>
+    Tele-MANAS is free and open 24 hours — <span>14416</span>
+  </div>
+</nav>
+
+<div class="main-content">
+
+  <section id="hero">
+    <div class="hero-decor" aria-hidden="true">
+      <svg width="260" height="260" style="top:-60px;right:32%;opacity:.5" viewBox="0 0 200 200"><path fill="#E8A33D" opacity=".18" d="M45,-59C59,-48,71,-33,74,-16C77,1,71,20,60,35C49,50,32,61,13,66C-6,71,-27,70,-43,59C-59,48,-70,27,-72,5C-74,-17,-67,-41,-52,-54C-37,-67,-14,-70,5,-72C24,-74,31,-70,45,-59Z" transform="translate(100 100)"/></svg>
+    </div>
+    <div class="wrap hero-wrap">
+      <div class="hero-copy reveal" id="heroHead">
+        <span class="eyebrow">A quieter way to ask for help</span>
+        <h1>Some weeks ask more <em class="main-title">of you</em> than you have to give.</h1>
+        <p class="subtitle">Talk to a counsellor who has the time you don't — for the anxious weeks, the low ones, the ones you can't quite name. No forms to explain yourself, no one at work finding out.</p>
+        <div id="bookingDiv">
+          <button class="btn" id="book" onclick="window.location.href='#counsellors'">Book a session</button>
+          <button class="btn" id="learn" onclick="window.location.href='#features'">Learn more</button>
+        </div>
+      </div>
+
+      <div class="hero-visual reveal">
+        <figure class="hero-photo">
+          <img src="https://images.unsplash.com/photo-1470137660724-c60a8b7fc53e?auto=format&fit=crop&w=1000&q=80" alt="Two friends walking and talking together at golden hour">
+        </figure>
+        <div class="breath" id="breath">
+          <span class="ring"></span><span class="ring"></span><span class="ring"></span>
+          <div class="breath-core">
+            <div id="breathPhase">Take a moment</div>
+            <div id="breathCount">Four rounds, ~1 min</div>
+            <button class="breath-start" id="breathStart">Start breathing</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="strip">
+    <div class="wrap strip-inner">
+      <div class="stat"><b>4</b><span>counsellors taking new bookings</span></div>
+      <div class="stat"><b>48h</b><span>typical wait for a first session</span></div>
+      <div class="stat"><b>0</b><span>details shared with your employer</span></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div id="features">
+      <div class="feature story reveal" id="feature1">
+        <div class="story-media"><img src="https://images.unsplash.com/photo-1565793244233-3d09028aad47?auto=format&fit=crop&w=800&q=80" alt="Licensed counsellor, warm portrait"></div>
+        <div class="story-text">
+          <span class="story-no">01</span>
+          <b>Someone who actually listens</b>
+          <p>Every counsellor here is licensed and independently vetted — but what people tell us matters more is that they don't rush you. You set the pace; they follow it.</p>
+        </div>
+      </div>
+      <div class="feature story reveal" id="feature2">
+        <div class="story-media"><img src="https://images.unsplash.com/photo-1491575509428-5cc7d3e4076b?auto=format&fit=crop&w=800&q=80" alt="A quiet moment by a sunlit window"></div>
+        <div class="story-text">
+          <span class="story-no">02</span>
+          <b>Care shaped around your week</b>
+          <p>Video or in person, early morning or after the kids are asleep — sessions fit into the life you already have, not a schedule built for someone else.</p>
+        </div>
+      </div>
+      <div class="feature story reveal" id="feature3">
+        <div class="story-media"><img src="https://images.unsplash.com/photo-1762539683985-de22c1e2358f?auto=format&fit=crop&w=800&q=80" alt="A quiet path through morning light"></div>
+        <div class="story-text">
+          <span class="story-no">03</span>
+          <b>You're not the only one</b>
+          <p>Hundreds of your colleagues have booked a first session this year. Most needed less convincing than they expected — and wished they'd started sooner.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="counsellors">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Meet the team</span>
+        <h2 class="section-title">Four counsellors, four ways of listening</h2>
+        <p class="section-subtitle">Pick by focus or just by who feels right — you can always switch later, no questions asked.</p>
+      </div>
+
+      <div class="finder">
+        <label class="search">
+          <i class="fas fa-magnifying-glass"></i>
+          <input type="search" id="search" placeholder="Search by name or what you're going through" aria-label="Search counsellors">
+        </label>
+      </div>
+      <div class="chips" id="chips" role="group" aria-label="Filter by focus">
+        <button class="chip" data-filter="all" aria-pressed="true">Everyone</button>
+        <button class="chip" data-filter="anxiety" aria-pressed="false">Anxiety</button>
+        <button class="chip" data-filter="depression" aria-pressed="false">Depression</button>
+        <button class="chip" data-filter="trauma" aria-pressed="false">Trauma</button>
+        <button class="chip" data-filter="family therapy" aria-pressed="false">Family</button>
+        <button class="chip" data-filter="addiction" aria-pressed="false">Addiction</button>
+        <button class="chip" data-filter="mindfulness" aria-pressed="false">Mindfulness</button>
+      </div>
+      <p class="result-count" id="count" aria-live="polite"></p>
+
+      <div id="counsellorCardSpace">
+
+        <div class="counsellorCard reveal" data-name="Dr. Sarah Johnson" data-tags="anxiety depression relationships cognitive behavioral therapy">
+          <div class="counsellorImage"><img src="https://images.unsplash.com/photo-1565793244233-3d09028aad47?auto=format&fit=crop&w=400&q=80" alt="Dr. Sarah Johnson"></div>
+          <div class="counsellorsDetails">
+            <h4>Dr. Sarah Johnson</h4>
+            <div class="meta">
+              <span class="rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></span>
+              <p>Experience: 8+ years</p>
+            </div>
+            <div class="tags"><div class="tag">Anxiety</div><div class="tag">Depression</div><div class="tag">Relationships</div></div>
+            <div class="intro"><p>Dr. Johnson specializes in cognitive behavioral therapy and has helped hundreds of clients overcome anxiety and depression.</p></div>
+          </div>
+          <div class="book-col">
+            <span class="slot-label">Next available</span>
+            <div class="slots">
+              <button class="slot" aria-pressed="false">Today 4:30pm</button>
+              <button class="slot" aria-pressed="false">Thu 11:00am</button>
+            </div>
+            <button class="Appointment">Book appointment</button>
+          </div>
+        </div>
+
+        <div class="counsellorCard reveal" data-name="Michael Rodriguez" data-tags="trauma ptsd mindfulness resilience">
+          <div class="counsellorImage"><img src="https://images.unsplash.com/photo-1667996113116-02fe641c5528?auto=format&fit=crop&w=400&q=80" alt="Michael Rodriguez"></div>
+          <div class="counsellorsDetails">
+            <h4>Michael Rodriguez</h4>
+            <div class="meta">
+              <span class="rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></span>
+              <p>Experience: 12+ years</p>
+            </div>
+            <div class="tags"><div class="tag">Trauma</div><div class="tag">PTSD</div><div class="tag">Mindfulness</div></div>
+            <div class="intro"><p>Michael uses evidence-based approaches and compassionate guidance to help clients process trauma and build lasting resilience.</p></div>
+          </div>
+          <div class="book-col">
+            <span class="slot-label">Next available</span>
+            <div class="slots">
+              <button class="slot" aria-pressed="false">Wed 9:00am</button>
+              <button class="slot" aria-pressed="false">Fri 6:15pm</button>
+            </div>
+            <button class="Appointment">Book appointment</button>
+          </div>
+        </div>
+
+        <div class="counsellorCard reveal" data-name="Dr. Emily Chen" data-tags="family therapy teens communication adolescents">
+          <div class="counsellorImage"><img src="https://images.unsplash.com/photo-1523651636407-1c94c6eb5f5c?auto=format&fit=crop&w=400&q=80" alt="Dr. Emily Chen"></div>
+          <div class="counsellorsDetails">
+            <h4>Dr. Emily Chen</h4>
+            <div class="meta">
+              <span class="rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i></span>
+              <p>Experience: 6+ years</p>
+            </div>
+            <div class="tags"><div class="tag">Family Therapy</div><div class="tag">Teens</div><div class="tag">Communication</div></div>
+            <div class="intro"><p>Dr. Chen specializes in family systems therapy and helping adolescents navigate life challenges.</p></div>
+          </div>
+          <div class="book-col">
+            <span class="slot-label">Next available</span>
+            <div class="slots">
+              <button class="slot" aria-pressed="false">Tomorrow 2:00pm</button>
+              <button class="slot" aria-pressed="false">Sat 10:30am</button>
+            </div>
+            <button class="Appointment">Book appointment</button>
+          </div>
+        </div>
+
+        <div class="counsellorCard reveal" data-name="James Wilson" data-tags="addiction recovery life transitions">
+          <div class="counsellorImage"><img src="https://images.unsplash.com/photo-1549043671-1e4550948355?auto=format&fit=crop&w=400&q=80" alt="James Wilson"></div>
+          <div class="counsellorsDetails">
+            <h4>James Wilson</h4>
+            <div class="meta">
+              <span class="rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></span>
+              <p>Experience: 15+ years</p>
+            </div>
+            <div class="tags"><div class="tag">Addiction</div><div class="tag">Recovery</div><div class="tag">Life Transitions</div></div>
+            <div class="intro"><p>James has dedicated his career to supporting individuals through addiction recovery and major life changes.</p></div>
+          </div>
+          <div class="book-col">
+            <span class="slot-label">Next available</span>
+            <div class="slots">
+              <button class="slot" aria-pressed="false">Today 7:00pm</button>
+              <button class="slot" aria-pressed="false">Mon 1:00pm</button>
+            </div>
+            <button class="Appointment">Book appointment</button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="empty" id="empty" hidden>
+        No counsellor matches that yet. <button type="button" id="clearFilters">Show everyone</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <span class="eyebrow reveal">Booking, step by step</span>
+      <h2 class="section-title reveal">What happens after you book</h2>
+      <p class="section-subtitle reveal">Three short steps. You can stop at any point, and nothing is shared outside the session.</p>
+      <div class="steps">
+        <div class="step reveal">
+          <span class="step-no">1</span>
+          <h3>Pick a time</h3>
+          <p>Choose a counsellor and a slot that suits you. Sessions run 50 minutes, over video or in person.</p>
+        </div>
+        <div class="step reveal">
+          <span class="step-no">2</span>
+          <h3>Share the basics</h3>
+          <p>A short form asks what you'd like help with. Write as much or as little as you want.</p>
+        </div>
+        <div class="step reveal">
+          <span class="step-no">3</span>
+          <h3>Meet your counsellor</h3>
+          <p>You'll get a confirmation with the joining link. If the fit isn't right, switch counsellors any time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="voices">
+    <div class="wrap quote-grid">
+      <div class="reveal">
+        <blockquote class="quote" id="quoteText">I put it off for months. The first session was the easiest part.</blockquote>
+        <div class="quote-who-row">
+          <div class="quote-avatar"><img id="quoteAvatar" src="https://images.unsplash.com/photo-1667996113116-02fe641c5528?auto=format&fit=crop&w=120&q=80" alt=""></div>
+          <p class="who" id="quoteWho">Aarav, engineering</p>
+        </div>
+        <div class="quote-nav" id="quoteNav">
+          <button class="dot" aria-pressed="true" aria-label="Quote 1"></button>
+          <button class="dot" aria-pressed="false" aria-label="Quote 2"></button>
+          <button class="dot" aria-pressed="false" aria-label="Quote 3"></button>
+        </div>
+      </div>
+      <div class="pledge reveal">
+        <div><i class="fas fa-lock"></i><span>Sessions are confidential. Your manager and HR never see who you booked or what you said.</span></div>
+        <div><i class="fas fa-rotate"></i><span>Change counsellors whenever you like — no explanation needed.</span></div>
+        <div><i class="fas fa-comment-dots"></i><span>Not ready to talk to a person? The AI support chat is open all night.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="cta-band">
+    <div class="cta-bg" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1762539683985-de22c1e2358f?auto=format&fit=crop&w=1600&q=80" alt="">
+    </div>
+    <div class="wrap cta-inner reveal">
+      <span class="eyebrow">Umeed means hope</span>
+      <h2>You don't need a reason big enough. An hour is worth it on its own.</h2>
+      <p>If today's the day you finally look into it, the first available slot is a few taps away.</p>
+      <button class="btn" onclick="window.location.href='#counsellors'">Find your counsellor</button>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <h2 class="section-title reveal">Questions people ask first</h2>
+      <div class="faq-list">
+        <details>
+          <span class="faq-no">01</span>
+          <summary>Will anyone at work find out?<i class="fas fa-plus"></i></summary>
+          <p>No. Bookings are tied to your account, not your team. Counsellors keep their own private notes and only share information if there is an immediate risk to someone's safety.</p>
+        </details>
+        <details>
+          <span class="faq-no">02</span>
+          <summary>How much does a session cost?<i class="fas fa-plus"></i></summary>
+          <p>Sessions booked through UmeedBot are covered for you. If you need more than the covered sessions, your counsellor will talk through the options before anything is charged.</p>
+        </details>
+        <details>
+          <span class="faq-no">03</span>
+          <summary>What if I don't click with my counsellor?<i class="fas fa-plus"></i></summary>
+          <p>That's common and it's fine. Come back to this page and book someone else — you don't need to finish a set number of sessions first.</p>
+        </details>
+        <details>
+          <span class="faq-no">04</span>
+          <summary>I'm not sure my problem is big enough.<i class="fas fa-plus"></i></summary>
+          <p>There's no threshold. Sleep, workload, a rough patch at home — all of it is worth an hour. If you'd like a sense of where you're at first, the stress assessment takes five minutes.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <footer class="page-foot">
+    <div class="wrap">
+      <span>Sessions are private. Nothing you share with a counsellor appears on your dashboard.</span>
+      <span>Urgent help: Tele-MANAS, 14416</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* Sidebar */
+var rail=document.getElementById('rail'),railToggle=document.getElementById('railToggle');
+railToggle.addEventListener('click',function(){
+  var open=rail.classList.toggle('open');
+  railToggle.setAttribute('aria-expanded',open);
+  railToggle.innerHTML=open?'<i class="fas fa-xmark"></i>':'<i class="fas fa-bars"></i>';
+});
+
+/* Breathing coach: 4-7-8, four rounds */
+(function(){
+  var box=document.getElementById('breath'),phase=document.getElementById('breathPhase'),
+      count=document.getElementById('breathCount'),start=document.getElementById('breathStart'),
+      timers=[],running=false;
+  var script=[['inhale','Breathe in',4],['hold','Hold',7],['exhale','Breathe out',8]];
+  function reset(){
+    timers.forEach(clearTimeout);timers=[];running=false;
+    box.className='breath';phase.textContent='Take a moment';
+    count.textContent='Four rounds, ~1 min';start.textContent='Start breathing';
+  }
+  function run(){
+    running=true;start.textContent='Stop';
+    var t=0;
+    for(var r=0;r<4;r++){
+      script.forEach(function(s){
+        (function(round,step){
+          timers.push(setTimeout(function(){
+            box.className='breath '+step[0];
+            phase.textContent=step[1];
+            count.textContent='Round '+(round+1)+' of 4';
+          },t*1000));
+        })(r,s);
+        t+=s[2];
+      });
+    }
+    timers.push(setTimeout(function(){
+      box.className='breath';phase.textContent='Well done';
+      count.textContent='Go again whenever you like';start.textContent='Start breathing';running=false;
+    },t*1000));
+  }
+  start.addEventListener('click',function(){running?reset():run();});
+})();
+
+/* Counsellor finder */
+(function(){
+  var cards=[].slice.call(document.querySelectorAll('.counsellorCard')),
+      chips=[].slice.call(document.querySelectorAll('.chip')),
+      search=document.getElementById('search'),
+      count=document.getElementById('count'),
+      empty=document.getElementById('empty'),
+      filter='all';
+  function apply(){
+    var q=search.value.trim().toLowerCase(),shown=0;
+    cards.forEach(function(c){
+      var hay=(c.dataset.name+' '+c.dataset.tags).toLowerCase();
+      var ok=(filter==='all'||c.dataset.tags.indexOf(filter)>-1)&&(!q||hay.indexOf(q)>-1);
+      c.hidden=!ok;if(ok)shown++;
+    });
+    count.textContent=shown===cards.length?'Showing all '+shown+' counsellors':'Showing '+shown+' of '+cards.length+' counsellors';
+    empty.hidden=shown>0;
+  }
+  chips.forEach(function(ch){
+    ch.addEventListener('click',function(){
+      chips.forEach(function(o){o.setAttribute('aria-pressed','false');});
+      ch.setAttribute('aria-pressed','true');
+      filter=ch.dataset.filter;apply();
+    });
+  });
+  search.addEventListener('input',apply);
+  document.getElementById('clearFilters').addEventListener('click',function(){
+    search.value='';
+    chips.forEach(function(o){o.setAttribute('aria-pressed',o.dataset.filter==='all'?'true':'false');});
+    filter='all';apply();
+  });
+  apply();
+
+  /* Slot picking carries through to the booking form */
+  cards.forEach(function(card){
+    var slots=[].slice.call(card.querySelectorAll('.slot'));
+    slots.forEach(function(s){
+      s.addEventListener('click',function(){
+        var on=s.getAttribute('aria-pressed')==='true';
+        slots.forEach(function(o){o.setAttribute('aria-pressed','false');});
+        s.setAttribute('aria-pressed',on?'false':'true');
+      });
+    });
+    card.querySelector('.Appointment').addEventListener('click',function(){
+      var picked=card.querySelector('.slot[aria-pressed="true"]');
+      var url='counsellingForm.html?counsellor='+encodeURIComponent(card.dataset.name);
+      if(picked)url+='&slot='+encodeURIComponent(picked.textContent);
+      window.location.href=url;
+    });
+  });
+})();
+
+/* Rotating voices */
+(function(){
+  var quotes=[
+    ['I put it off for months. The first session was the easiest part.','Aarav, engineering','https://images.unsplash.com/photo-1667996113116-02fe641c5528?auto=format&fit=crop&w=120&q=80'],
+    ['She never told me to calm down. She asked what the week had actually looked like.','Meera, operations','https://images.unsplash.com/photo-1565793244233-3d09028aad47?auto=format&fit=crop&w=120&q=80'],
+    ['Forty minutes a week is doing more for me than a year of pushing through.','Rohit, support','https://images.unsplash.com/photo-1549043671-1e4550948355?auto=format&fit=crop&w=120&q=80']
+  ];
+  var text=document.getElementById('quoteText'),who=document.getElementById('quoteWho'),
+      avatar=document.getElementById('quoteAvatar'),
+      dots=[].slice.call(document.querySelectorAll('#quoteNav .dot'));
+  dots.forEach(function(d,i){
+    d.addEventListener('click',function(){
+      dots.forEach(function(o,j){o.setAttribute('aria-pressed',j===i?'true':'false');});
+      text.textContent=quotes[i][0];who.textContent=quotes[i][1];avatar.src=quotes[i][2];
+    });
+  });
+})();
+
+/* Scroll reveal */
+(function(){
+  var els=[].slice.call(document.querySelectorAll('.reveal'));
+  if(!('IntersectionObserver' in window)||window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    els.forEach(function(el){el.classList.add('in-view');});
+    return;
+  }
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){entry.target.classList.add('in-view');io.unobserve(entry.target);}
+    });
+  },{threshold:.15,rootMargin:'0px 0px -40px 0px'});
+  els.forEach(function(el){io.observe(el);});
+})();
+</script>
+</body>
+</html>

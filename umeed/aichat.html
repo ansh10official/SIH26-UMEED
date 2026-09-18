@@ -1,0 +1,677 @@
+<!-- AI CHATBOT CODE WORKING AND FIXED -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Support Chat — Umeed</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,500&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#241934;
+  --ink-2:#382650;
+  --rose:#C97B63;
+  --rose-deep:#AD5F49;
+  --marigold:#E8A33D;
+  --ivory:#FBF3EC;
+  --ivory-deep:#F3E3D3;
+  --mauve:#6B5470;
+  --taupe:#E7D3C2;
+  --body:#4A3F4E;
+  --muted:#8B7D8E;
+  --sage:#6F8F5B;
+  --paper:#FFFFFF;
+  --display:'Fraunces',Georgia,serif;
+  --sans:'Sora','Segoe UI',Tahoma,sans-serif;
+  --rail:270px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--ivory);color:var(--body);-webkit-font-smoothing:antialiased;display:flex;min-height:100vh;overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--rose);outline-offset:3px;border-radius:6px}
+
+/* ---------- Sidebar (shared with counselling.html) ---------- */
+.navbar{width:var(--rail);background:var(--ink);color:var(--ivory);padding:32px 22px 24px;display:flex;flex-direction:column;height:100vh;position:fixed;left:0;top:0;overflow-y:auto;z-index:30}
+.navbar-brand{display:flex;align-items:center;gap:13px;text-decoration:none;padding-bottom:26px;margin-bottom:26px;border-bottom:1px solid rgba(251,243,236,.14)}
+.navbar-logo{font-size:18px;color:var(--ink);background:linear-gradient(140deg,var(--marigold),var(--rose));width:44px;height:44px;border-radius:15px 15px 15px 4px;display:grid;place-items:center;flex-shrink:0}
+.navbar-title{font-family:var(--display);font-style:italic;font-size:1.55rem;font-weight:500;line-height:1.1;letter-spacing:-.01em}
+.navbar-subtitle{font-size:.72rem;color:var(--rose);margin-top:3px;letter-spacing:.01em}
+.navbar-nav{display:flex;flex-direction:column;gap:3px;flex:1}
+.nav-link{color:rgba(251,243,236,.72);text-decoration:none;font-size:.93rem;padding:11px 14px;border-radius:11px;display:flex;align-items:center;gap:13px;transition:background-color .25s,color .25s}
+.nav-link i{width:18px;text-align:center;font-size:.92rem;opacity:.75}
+.nav-link:hover{background:rgba(201,123,99,.16);color:var(--ivory)}
+.nav-link.active{background:var(--rose);color:var(--ink);font-weight:600}
+.nav-link.active i{opacity:1;color:var(--ink)}
+.rail-note{margin-top:26px;padding:17px;border-radius:14px;background:rgba(232,163,61,.12);border:1px solid rgba(232,163,61,.22);font-size:.79rem;line-height:1.55;color:rgba(251,243,236,.85)}
+.rail-note strong{display:block;color:var(--ivory);font-weight:600;margin-bottom:3px}
+.rail-note span{color:var(--marigold);font-weight:600}
+.rail-toggle{display:none}
+
+/* ---------- Layout ---------- */
+.main-content{flex:1;margin-left:var(--rail);max-width:calc(100% - var(--rail));min-height:100vh;display:flex;flex-direction:column;padding:32px 40px}
+
+/* ---------- Chat header ---------- */
+.chat-top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:22px;flex-wrap:wrap}
+.chat-top .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.85rem;color:var(--rose-deep);margin-bottom:10px;font-weight:500}
+.chat-top .eyebrow::before{content:'';width:22px;height:1px;background:var(--marigold)}
+.chat-top h1{font-family:var(--display);font-weight:400;font-size:clamp(1.7rem,2.6vw,2.2rem);letter-spacing:-.02em;color:var(--ink)}
+.chat-top p{font-size:.94rem;color:var(--muted);margin-top:6px;max-width:48ch;line-height:1.6}
+.status-pill{display:flex;align-items:center;gap:8px;background:var(--ink);color:var(--ivory);border-radius:999px;padding:9px 16px 9px 12px;font-size:.82rem;white-space:nowrap}
+.status-dot{width:7px;height:7px;background:var(--sage);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ---------- Chat shell ---------- */
+.chat-shell{flex:1;display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:24px;min-height:0}
+.chat-container{background:var(--paper);border-radius:26px;box-shadow:0 30px 60px -34px rgba(36,25,52,.35);display:flex;flex-direction:column;overflow:hidden;min-height:0}
+
+.messages-container{flex:1;overflow-y:auto;padding:28px 30px;display:flex;flex-direction:column;gap:16px;background:
+  radial-gradient(circle at 12% 8%, rgba(232,163,61,.06), transparent 40%),
+  radial-gradient(circle at 90% 92%, rgba(201,123,99,.06), transparent 45%),
+  var(--ivory)}
+.messages-container::-webkit-scrollbar{width:6px}
+.messages-container::-webkit-scrollbar-track{background:transparent}
+.messages-container::-webkit-scrollbar-thumb{background:var(--taupe);border-radius:10px}
+
+.welcome-message{text-align:center;padding:34px 24px;background:var(--ivory-deep);border-radius:20px;margin-bottom:6px}
+.welcome-message h2{font-family:var(--display);font-weight:400;font-size:1.5rem;color:var(--ink);margin-bottom:10px;letter-spacing:-.01em}
+.welcome-message p{color:var(--body);font-size:.94rem;line-height:1.7;max-width:44ch;margin:0 auto}
+.welcome-message p+p{margin-top:4px}
+
+.message{max-width:72%;padding:13px 18px;border-radius:20px;line-height:1.6;position:relative;font-size:.96rem;word-wrap:break-word;box-shadow:0 2px 10px rgba(36,25,52,.05)}
+.message.user{background:var(--ink);color:var(--ivory);align-self:flex-end;border-bottom-right-radius:6px}
+.message.bot{background:var(--paper);color:var(--body);align-self:flex-start;border:1px solid var(--taupe);border-bottom-left-radius:6px}
+.message-time{font-size:.68rem;opacity:.6;margin-top:6px}
+.message.user .message-time{text-align:right;color:rgba(251,243,236,.7)}
+.message.bot .message-time{text-align:left;color:var(--muted)}
+
+.message-actions{position:absolute;top:-14px;display:flex;gap:5px;opacity:0;background:var(--paper);border-radius:20px;box-shadow:0 4px 14px rgba(36,25,52,.18);padding:4px;transition:opacity .2s}
+.message.user .message-actions{right:8px}
+.message.bot .message-actions{left:8px}
+.message:hover .message-actions{opacity:1}
+.message-action{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--ivory-deep);border:none;cursor:pointer;color:var(--rose-deep);font-size:.72rem}
+.message-action:hover{background:var(--taupe)}
+
+.edit-box{width:100%}
+.edit-box textarea{width:100%;font-family:inherit;font-size:.95rem;border-radius:14px;border:1px solid var(--taupe);padding:10px 14px;resize:vertical;min-height:60px}
+.edit-actions{display:flex;gap:8px;margin-top:8px}
+.edit-save,.edit-cancel{font-family:var(--sans);font-size:.82rem;font-weight:600;border:none;border-radius:999px;padding:7px 16px;cursor:pointer}
+.edit-save{background:var(--rose-deep);color:var(--ivory)}
+.edit-cancel{background:var(--ivory-deep);color:var(--ink)}
+
+.typing-indicator{display:none;align-self:flex-start;background:var(--paper);padding:13px 18px;border-radius:20px;border:1px solid var(--taupe);border-bottom-left-radius:6px}
+.typing-dots{display:flex;gap:4px}
+.typing-dots span{height:7px;width:7px;background:var(--rose);border-radius:50%;animation:typing 1.4s infinite ease-in-out}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes typing{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+.input-container{display:flex;align-items:flex-end;gap:12px;padding:18px 22px;background:var(--paper);border-top:1px solid var(--taupe)}
+.message-input{flex:1;resize:none;padding:13px 18px;border-radius:20px;border:1px solid var(--taupe);font-size:.96rem;font-family:inherit;outline:none;max-height:120px;background:var(--ivory);color:var(--ink)}
+.message-input:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,123,99,.14)}
+.message-input::placeholder{color:var(--muted)}
+.send-button{background:var(--ink);color:var(--ivory);border:none;border-radius:50%;width:48px;height:48px;display:grid;place-items:center;cursor:pointer;flex-shrink:0;transition:background-color .2s,transform .2s}
+.send-button:hover{background:var(--rose-deep);transform:translateY(-1px)}
+.send-button:disabled{background:var(--taupe);color:var(--muted);cursor:not-allowed;transform:none}
+
+/* ---------- Side rail: prompts + safety ---------- */
+.side-rail{display:flex;flex-direction:column;gap:16px;min-height:0;overflow-y:auto}
+.rail-card{background:var(--paper);border-radius:20px;padding:20px;box-shadow:0 20px 40px -28px rgba(36,25,52,.3)}
+.rail-card h3{font-family:var(--display);font-weight:400;font-size:1.05rem;color:var(--ink);margin-bottom:12px;letter-spacing:-.01em}
+.prompt-chip{display:block;width:100%;text-align:left;background:var(--ivory-deep);border:1px solid var(--taupe);border-radius:13px;padding:11px 14px;font-family:var(--sans);font-size:.85rem;color:var(--body);cursor:pointer;margin-bottom:8px;transition:border-color .2s,background-color .2s}
+.prompt-chip:last-child{margin-bottom:0}
+.prompt-chip:hover{border-color:var(--rose);background:var(--ivory)}
+
+.rail-card.safety{background:var(--ink);color:var(--ivory)}
+.rail-card.safety h3{color:var(--ivory)}
+.rail-card.safety p{font-size:.85rem;line-height:1.65;color:rgba(251,243,236,.78);margin-bottom:12px}
+.rail-card.safety .line{display:flex;justify-content:space-between;align-items:baseline;background:rgba(251,243,236,.08);border-radius:12px;padding:11px 13px;margin-bottom:8px}
+.rail-card.safety .line:last-child{margin-bottom:0}
+.rail-card.safety .line span{font-size:.82rem;color:rgba(251,243,236,.75)}
+.rail-card.safety .line b{font-family:var(--display);font-style:italic;color:var(--marigold);font-weight:400}
+
+.rail-card.handoff p{font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:12px}
+.handoff-btn{display:block;width:100%;text-align:center;background:var(--rose-deep);color:var(--ivory);border:none;border-radius:999px;padding:11px;font-family:var(--sans);font-weight:600;font-size:.85rem;cursor:pointer;text-decoration:none}
+.handoff-btn:hover{background:var(--ink)}
+
+/* ---------- Toast ---------- */
+.toast{position:fixed;bottom:24px;left:calc(50% + var(--rail)/2);transform:translateX(-50%) translateY(100px);background:var(--ink);color:var(--ivory);padding:12px 20px;border-radius:12px;box-shadow:0 10px 30px rgba(36,25,52,.3);z-index:1000;opacity:0;transition:.3s;font-size:.85rem}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1080px){
+  .chat-shell{grid-template-columns:1fr}
+  .side-rail{flex-direction:row;overflow-x:auto;overflow-y:visible}
+  .rail-card{min-width:240px}
+}
+@media (max-width:768px){
+  body{flex-direction:column}
+  .navbar{position:sticky;top:0;width:100%;height:auto;padding:16px 20px;z-index:20}
+  .navbar-brand{margin-bottom:0;padding-bottom:0;border-bottom:none}
+  .rail-toggle{display:grid;place-items:center;position:absolute;right:18px;top:20px;width:40px;height:40px;border-radius:10px;background:rgba(201,123,99,.18);color:var(--ivory);border:none;font-size:1rem;cursor:pointer}
+  .navbar-nav{display:none;margin-top:18px;padding-top:16px;border-top:1px solid rgba(251,243,236,.14)}
+  .navbar.open .navbar-nav{display:flex}
+  .rail-note{display:none}
+  .navbar.open .rail-note{display:block}
+  .main-content{margin-left:0;max-width:100%;padding:20px}
+  .toast{left:50%}
+  .message{max-width:85%}
+}
+</style>
+</head>
+<body>
+<nav class="navbar" id="rail">
+  <a href="index.html" class="navbar-brand">
+    <i class="fas fa-sun navbar-logo"></i>
+    <div>
+      <div class="navbar-title">Umeed</div>
+      <div class="navbar-subtitle">Employee Wellness Assistant</div>
+    </div>
+  </a>
+  <button class="rail-toggle" id="railToggle" aria-label="Show menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+  <div class="navbar-nav">
+    <a href="dashboard.html" class="nav-link"><i class="fas fa-home"></i><span>Dashboard</span></a>
+    <a href="quiz.html" class="nav-link"><i class="fas fa-clipboard-list"></i><span>Stress Assessment</span></a>
+    <a href="counselling.html" class="nav-link"><i class="fas fa-calendar-check"></i><span>Professional Support</span></a>
+    <a href="resources.html" class="nav-link"><i class="fas fa-book-open"></i><span>Wellness Resources</span></a>
+    <a href="aichat.html" class="nav-link active"><i class="fas fa-robot"></i><span>AI Support Chat</span></a>
+  </div>
+  <div class="rail-note">
+    <strong>Need help right now?</strong>
+    Tele-MANAS is free and open 24 hours — <span>14416</span>
+  </div>
+</nav>
+
+<div class="main-content">
+
+  <div class="chat-top">
+    <div>
+      <span class="eyebrow">Talk it through, any hour</span>
+      <h1>What's on your mind today?</h1>
+      <p>This chat is a starting point, not a replacement for your counsellor — think out loud, sort through a rough week, or figure out what kind of support fits.</p>
+    </div>
+    <div class="status-pill"><span class="status-dot"></span> Online now</div>
+  </div>
+
+  <div class="chat-shell">
+    <div class="chat-container">
+      <div class="messages-container" id="messages">
+        <div class="welcome-message">
+          <h2>Hello, I'm here to listen</h2>
+          <p>Tell me about your day, a worry that's been sitting with you, or something you're stuck on. Nothing you write here appears on your dashboard.</p>
+        </div>
+      </div>
+
+      <div class="typing-indicator" id="typing">
+        <div class="typing-dots"><span></span><span></span><span></span></div>
+      </div>
+
+      <div class="input-container">
+        <textarea class="message-input" id="msg" rows="1" placeholder="Write freely — there's no wrong way to start" autocomplete="off"></textarea>
+        <button class="send-button" id="send" title="Send message" aria-label="Send message"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+
+    <div class="side-rail">
+      <div class="rail-card">
+        <h3>Not sure where to start?</h3>
+        <button class="prompt-chip" type="button">I've been feeling overwhelmed at work lately</button>
+        <button class="prompt-chip" type="button">I'm having trouble sleeping</button>
+        <button class="prompt-chip" type="button">I want help preparing for a hard conversation</button>
+        <button class="prompt-chip" type="button">I just need to vent for a minute</button>
+      </div>
+
+      <div class="rail-card safety">
+        <h3>Good to know</h3>
+        <p>This assistant offers support and coping suggestions — it can't diagnose or prescribe, and it isn't a crisis service.</p>
+        <div class="line"><span>In immediate danger</span><b>Call 112</b></div>
+        <div class="line"><span>Emotional distress, any hour</span><b>14416</b></div>
+      </div>
+
+      <div class="rail-card handoff">
+        <p>Want to talk to a person instead? A licensed counsellor can pick up from here.</p>
+        <a class="handoff-btn" href="counselling.html">Book a counsellor</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* Sidebar toggle (shared pattern) */
+var rail=document.getElementById('rail'),railToggle=document.getElementById('railToggle');
+railToggle.addEventListener('click',function(){
+  var open=rail.classList.toggle('open');
+  railToggle.setAttribute('aria-expanded',open);
+  railToggle.innerHTML=open?'<i class="fas fa-xmark"></i>':'<i class="fas fa-bars"></i>';
+});
+
+/*
+==================================================
+BACKEND API
+==================================================
+Do NOT put an API key here. Point this at your own
+backend endpoint, which holds the key server-side.
+*/
+
+const sendBtn=document.getElementById("send");
+const msgInput=document.getElementById("msg");
+const messagesDiv=document.getElementById("messages");
+const typingIndicator=document.getElementById("typing");
+const toast=document.getElementById("toast");
+
+function getCurrentTime(){
+  return new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+}
+
+function showToast(message){
+  toast.textContent=message;
+  toast.classList.add("show");
+  setTimeout(function(){ toast.classList.remove("show"); }, 2600);
+}
+
+function createTimeDiv(){
+  var d=document.createElement("div");
+  d.className="message-time";
+  d.textContent=getCurrentTime();
+  return d;
+}
+
+function createMessageActions(messageDiv, messageContent, sender){
+  var actionsDiv=document.createElement("div");
+  actionsDiv.className="message-actions";
+
+  var copyBtn=document.createElement("button");
+  copyBtn.className="message-action";
+  copyBtn.innerHTML='<i class="fas fa-copy"></i>';
+  copyBtn.title="Copy message";
+  copyBtn.addEventListener("click", async function(){
+    try{
+      await navigator.clipboard.writeText(messageContent.textContent);
+      showToast("Message copied");
+    }catch(e){
+      showToast("Couldn't copy that message");
+    }
+  });
+  actionsDiv.appendChild(copyBtn);
+
+  if(sender==="user"){
+    var editBtn=document.createElement("button");
+    editBtn.className="message-action";
+    editBtn.innerHTML='<i class="fas fa-pen"></i>';
+    editBtn.title="Edit message";
+    editBtn.addEventListener("click", function(){
+      editMessage(messageDiv, messageContent);
+    });
+    actionsDiv.appendChild(editBtn);
+  }
+
+  messageDiv.appendChild(actionsDiv);
+}
+
+function editMessage(messageDiv, messageContent){
+  var originalText=messageContent.textContent;
+
+  var box=document.createElement("div");
+  box.className="edit-box";
+
+  var editInput=document.createElement("textarea");
+  editInput.value=originalText;
+  box.appendChild(editInput);
+
+  var actions=document.createElement("div");
+  actions.className="edit-actions";
+
+  var saveBtn=document.createElement("button");
+  saveBtn.className="edit-save";
+  saveBtn.textContent="Save";
+
+  var cancelBtn=document.createElement("button");
+  cancelBtn.className="edit-cancel";
+  cancelBtn.textContent="Cancel";
+
+  actions.appendChild(saveBtn);
+  actions.appendChild(cancelBtn);
+  box.appendChild(actions);
+
+  messageDiv.innerHTML="";
+  messageDiv.appendChild(box);
+  editInput.focus();
+
+  cancelBtn.addEventListener("click", function(){
+    restoreMessage(messageDiv, originalText);
+  });
+
+  saveBtn.addEventListener("click", function(){
+    var newText=editInput.value.trim();
+    if(!newText){ showToast("Message can't be empty"); return; }
+    restoreMessage(messageDiv, newText);
+    showToast("Message updated");
+  });
+}
+
+function restoreMessage(messageDiv, text){
+  messageDiv.innerHTML="";
+  var content=document.createElement("div");
+  content.textContent=text;
+  messageDiv.appendChild(content);
+  messageDiv.appendChild(createTimeDiv());
+  createMessageActions(messageDiv, content, "user");
+}
+
+function addMessage(text, sender){
+  var messageDiv=document.createElement("div");
+  messageDiv.className="message "+sender;
+
+  var messageContent=document.createElement("div");
+  messageContent.textContent=text;
+
+  messageDiv.appendChild(messageContent);
+  messageDiv.appendChild(createTimeDiv());
+  createMessageActions(messageDiv, messageContent, sender);
+
+  messagesDiv.appendChild(messageDiv);
+  messagesDiv.scrollTop=messagesDiv.scrollHeight;
+}
+
+function showTypingIndicator(){
+  typingIndicator.style.display="block";
+  messagesDiv.scrollTop=messagesDiv.scrollHeight;
+}
+function hideTypingIndicator(){
+  typingIndicator.style.display="none";
+}
+
+/* ==================================================
+   GEMINI API
+   ==================================================
+   Prototype mode: API key is stored in this HTML file.
+   ================================================== */
+const GEMINI_API_KEY = "AQ.Ab8RN6JR8BBK3RbDiIJqTZ92bzgTtHsTtHojUpcgznZRDZZspg";
+
+/*
+   Use stable model IDs instead of gemini-flash-latest.
+   Google currently lists these as stable Gemini Flash models.
+*/
+const GEMINI_MODELS = [
+    "gemini-3.6-flash",
+    "gemini-3.5-flash-lite",
+    "gemini-2.5-flash"
+];
+
+function sleep(ms){
+    return new Promise(function(resolve){
+        setTimeout(resolve, ms);
+    });
+}
+
+async function requestGemini(model, text){
+    const url =
+        "https://generativelanguage.googleapis.com/v1beta/models/" +
+        model +
+        ":generateContent";
+
+    return await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": GEMINI_API_KEY
+        },
+        body: JSON.stringify({
+            systemInstruction: {
+                parts: [
+                    {
+                        text:
+                            "You are Umeed, an empathetic employee wellness support assistant. " +
+                            "Be warm, supportive, concise, and practical. " +
+                            "Listen carefully and respond naturally. " +
+                            "Do not diagnose medical conditions or prescribe medication. " +
+                            "If someone may be in immediate danger, encourage them to contact " +
+                            "appropriate emergency or crisis support."
+                    }
+                ]
+            },
+            contents: [
+                {
+                    role: "user",
+                    parts: [
+                        {
+                            text: text
+                        }
+                    ]
+                }
+            ],
+            generationConfig: {
+                maxOutputTokens: 4096
+            }
+        })
+    });
+}
+
+async function sendMessage(){
+    var text = msgInput.value.trim();
+    if(!text) return;
+
+    addMessage(text, "user");
+    msgInput.value = "";
+    msgInput.style.height = "auto";
+    sendBtn.disabled = true;
+    showTypingIndicator();
+
+    try {
+        if (
+            !GEMINI_API_KEY ||
+            GEMINI_API_KEY === "PASTE_YOUR_NEW_GEMINI_API_KEY_HERE"
+        ) {
+            throw new Error("API_KEY_NOT_ADDED");
+        }
+
+        var data = null;
+        var lastError = null;
+        var successfulModel = null;
+
+        /*
+          Try each model. For temporary 429/5xx errors,
+          retry with exponential backoff before moving on.
+        */
+        for(var m = 0; m < GEMINI_MODELS.length; m++){
+            var model = GEMINI_MODELS[m];
+
+            for(var attempt = 0; attempt < 3; attempt++){
+                try {
+                    var response = await requestGemini(model, text);
+                    var responseText = await response.text();
+
+                    if(response.ok){
+                        data = JSON.parse(responseText);
+                        successfulModel = model;
+                        break;
+                    }
+
+                    console.error(
+                        "Gemini error",
+                        model,
+                        "HTTP " + response.status,
+                        responseText
+                    );
+
+                    /*
+                      429 = rate limit.
+                      408/5xx = temporary service/network problem.
+                      Retry these; don't waste retries on invalid
+                      keys or malformed requests.
+                    */
+                    if(
+                        response.status === 408 ||
+                        response.status === 429 ||
+                        response.status >= 500
+                    ){
+                        lastError = new Error(
+                            "HTTP " + response.status
+                        );
+
+                        if(attempt < 2){
+                            await sleep(1500 * Math.pow(2, attempt));
+                            continue;
+                        }
+                    } else {
+                        var apiError = "Gemini API request failed.";
+
+                        try {
+                            var errorData = JSON.parse(responseText);
+                            apiError =
+                                errorData?.error?.message || apiError;
+                        } catch(e) {}
+
+                        throw new Error(apiError);
+                    }
+
+                } catch(error) {
+                    lastError = error;
+
+                    if(attempt < 2){
+                        await sleep(1500 * Math.pow(2, attempt));
+                    }
+                }
+            }
+
+            if(data) break;
+        }
+
+        if(!data){
+            throw lastError || new Error("NO_GEMINI_RESPONSE");
+        }
+
+        console.log("Umeed response model:", successfulModel);
+        console.log("Gemini response:", data);
+
+        var candidate = data?.candidates?.[0];
+        var finishReason = candidate?.finishReason;
+
+        /*
+          MAX_TOKENS means Gemini stopped because the output budget
+          was reached. Retry once with a larger budget so the user
+          doesn't receive a cut-off sentence.
+        */
+        if(finishReason === "MAX_TOKENS"){
+            console.warn("Umeed response reached MAX_TOKENS. Retrying with a larger output budget.");
+
+            var retryResponse = await fetch(
+                "https://generativelanguage.googleapis.com/v1beta/models/" +
+                successfulModel +
+                ":generateContent",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-goog-api-key": GEMINI_API_KEY
+                    },
+                    body: JSON.stringify({
+                        systemInstruction: {
+                            parts: [{
+                                text:
+                                    "You are Umeed, an empathetic employee wellness support assistant. " +
+                                    "Be warm, supportive, concise, and practical. " +
+                                    "Give complete answers rather than stopping mid-sentence. " +
+                                    "For a short user message, respond naturally with a helpful answer. " +
+                                    "Do not diagnose medical conditions or prescribe medication. " +
+                                    "If someone may be in immediate danger, encourage appropriate emergency or crisis support."
+                            }]
+                        },
+                        contents: [{
+                            role: "user",
+                            parts: [{ text: text }]
+                        }],
+                        generationConfig: {
+                            maxOutputTokens: 8192,
+                            temperature: 0.7
+                        }
+                    })
+                }
+            );
+
+            if(retryResponse.ok){
+                data = await retryResponse.json();
+                candidate = data?.candidates?.[0];
+                finishReason = candidate?.finishReason;
+            }else{
+                console.warn("Umeed larger-output retry failed:", await retryResponse.text());
+            }
+        }
+
+        const reply =
+            data?.candidates?.[0]?.content?.parts
+                ?.map(function(part){
+                    return part.text || "";
+                })
+                .join("")
+                .trim();
+
+        hideTypingIndicator();
+
+        if(reply){
+            addMessage(reply, "bot");
+        }else{
+            console.error("Unexpected Gemini response:", data);
+
+            addMessage(
+                "Umeed AI support failed. Please try again in a moment.",
+                "bot"
+            );
+        }
+
+    } catch(error) {
+        console.error("Umeed AI error:", error);
+        hideTypingIndicator();
+
+        var userMessage;
+
+        if(error.message === "API_KEY_NOT_ADDED"){
+            userMessage =
+                "Umeed AI support failed. Please add your Gemini API key.";
+        }else{
+            userMessage =
+                "Umeed AI support failed. Please try again in a moment.";
+        }
+
+        addMessage(userMessage, "bot");
+    }
+
+    sendBtn.disabled = false;
+    msgInput.focus();
+}
+
+msgInput.addEventListener("input", function(){
+  this.style.height="auto";
+  this.style.height=this.scrollHeight+"px";
+});
+
+sendBtn.addEventListener("click", sendMessage);
+
+msgInput.addEventListener("keydown", function(event){
+  if(event.key==="Enter" && !event.shiftKey){
+    event.preventDefault();
+    sendMessage();
+  }
+});
+
+/* Prompt chips fill the input rather than auto-sending, so the person can edit first */
+document.querySelectorAll(".prompt-chip").forEach(function(chip){
+  chip.addEventListener("click", function(){
+    msgInput.value=chip.textContent;
+    msgInput.focus();
+    msgInput.dispatchEvent(new Event("input"));
+  });
+});
+
+/* Opening message */
+setTimeout(function(){
+  addMessage("Hi, I'm glad you're here. Whatever brought you to this chat today — a hard week, something you can't quite name, or just needing to think out loud — I'm ready to listen. What's going on?", "bot");
+}, 600);
+</script>
+</body>
+</html>

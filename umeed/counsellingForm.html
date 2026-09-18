@@ -1,0 +1,304 @@
+<!-- COUNSELLING FORM CODE WORKING AND FIXED -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book Your Session — UmeedBot</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,500&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#241934;
+  --ink-2:#382650;
+  --rose:#C97B63;
+  --rose-deep:#AD5F49;
+  --marigold:#E8A33D;
+  --ivory:#FBF3EC;
+  --ivory-deep:#F3E3D3;
+  --mauve:#6B5470;
+  --taupe:#E7D3C2;
+  --body:#4A3F4E;
+  --muted:#8B7D8E;
+  --sage:#6F8F5B;
+  --paper:#FFFFFF;
+  --display:'Fraunces',Georgia,serif;
+  --sans:'Sora','Segoe UI',Tahoma,sans-serif;
+  --rail:270px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--ivory);color:var(--body);-webkit-font-smoothing:antialiased;display:flex;min-height:100vh;overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--rose);outline-offset:3px;border-radius:6px}
+
+/* ---------- Sidebar (shared) ---------- */
+.navbar{width:var(--rail);background:var(--ink);color:var(--ivory);padding:32px 22px 24px;display:flex;flex-direction:column;height:100vh;position:fixed;left:0;top:0;overflow-y:auto;z-index:30}
+.navbar-brand{display:flex;align-items:center;gap:13px;text-decoration:none;padding-bottom:26px;margin-bottom:26px;border-bottom:1px solid rgba(251,243,236,.14)}
+.navbar-logo{font-size:18px;color:var(--ink);background:linear-gradient(140deg,var(--marigold),var(--rose));width:44px;height:44px;border-radius:15px 15px 15px 4px;display:grid;place-items:center;flex-shrink:0}
+.navbar-title{font-family:var(--display);font-style:italic;font-size:1.55rem;font-weight:500;line-height:1.1;letter-spacing:-.01em}
+.navbar-subtitle{font-size:.72rem;color:var(--rose);margin-top:3px;letter-spacing:.01em}
+.navbar-nav{display:flex;flex-direction:column;gap:3px;flex:1}
+.nav-link{color:rgba(251,243,236,.72);text-decoration:none;font-size:.93rem;padding:11px 14px;border-radius:11px;display:flex;align-items:center;gap:13px;transition:background-color .25s,color .25s}
+.nav-link i{width:18px;text-align:center;font-size:.92rem;opacity:.75}
+.nav-link:hover{background:rgba(201,123,99,.16);color:var(--ivory)}
+.nav-link.active{background:var(--rose);color:var(--ink);font-weight:600}
+.nav-link.active i{opacity:1;color:var(--ink)}
+.rail-note{margin-top:26px;padding:17px;border-radius:14px;background:rgba(232,163,61,.12);border:1px solid rgba(232,163,61,.22);font-size:.79rem;line-height:1.55;color:rgba(251,243,236,.85)}
+.rail-note strong{display:block;color:var(--ivory);font-weight:600;margin-bottom:3px}
+.rail-note span{color:var(--marigold);font-weight:600}
+.rail-toggle{display:none}
+
+/* ---------- Layout ---------- */
+.main-content{flex:1;margin-left:var(--rail);max-width:calc(100% - var(--rail));padding:56px 48px 64px;display:flex;justify-content:center}
+.form-page{width:100%;max-width:760px}
+
+.back-link{display:inline-flex;align-items:center;gap:8px;font-size:.85rem;color:var(--rose-deep);text-decoration:none;font-weight:600;margin-bottom:22px}
+.back-link:hover{color:var(--ink)}
+
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.85rem;color:var(--rose-deep);margin-bottom:16px;font-weight:500}
+.eyebrow::before{content:'';width:22px;height:1px;background:var(--marigold)}
+.page-title{font-family:var(--display);font-weight:400;font-size:clamp(1.9rem,3.2vw,2.5rem);line-height:1.12;letter-spacing:-.02em;color:var(--ink);margin-bottom:12px}
+.page-title em{font-style:italic;color:var(--rose-deep);font-weight:400}
+.page-subtitle{font-size:1rem;color:var(--body);line-height:1.7;max-width:56ch;margin-bottom:14px}
+
+/* Selected booking summary (reads counsellor/slot from URL, purely additive) */
+.selection-note{display:none;align-items:center;gap:12px;background:var(--ivory-deep);border:1px solid var(--taupe);border-radius:16px;padding:14px 18px;margin-bottom:30px;font-size:.9rem;color:var(--ink)}
+.selection-note.show{display:flex}
+.selection-note i{color:var(--rose-deep)}
+.selection-note b{font-weight:600}
+
+/* ---------- Form sections ---------- */
+.form-section{margin-bottom:22px;padding:26px 28px;border-radius:22px;background:var(--paper);box-shadow:0 20px 40px -30px rgba(36,25,52,.3);border-left:3px solid var(--rose)}
+.form-section h3{font-family:var(--display);font-weight:400;font-size:1.3rem;color:var(--ink);margin-bottom:20px;display:flex;align-items:center;gap:12px;letter-spacing:-.01em}
+.form-section h3 i{color:var(--rose-deep);font-size:1rem}
+
+.form-group{margin-bottom:18px}
+.form-group:last-child{margin-bottom:0}
+label{display:block;margin-bottom:7px;font-weight:600;font-size:.85rem;color:var(--mauve)}
+
+input,select,textarea{
+  width:100%;padding:12px 15px;border:1px solid var(--taupe);border-radius:12px;
+  font-size:.95rem;font-family:var(--sans);color:var(--ink);background:var(--ivory);
+  transition:border-color .2s,box-shadow .2s;
+}
+input::placeholder,textarea::placeholder{color:var(--muted)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,123,99,.15);background:var(--paper)}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238B7D8E' stroke-width='1.6' fill='none' fill-rule='evenodd'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:38px}
+textarea{resize:vertical;min-height:96px}
+
+.form-row{display:flex;gap:18px}
+.form-row .form-group{flex:1}
+
+.checkbox-group{display:flex;align-items:flex-start;gap:12px;margin:8px 4px 28px}
+.checkbox-group input{width:auto;margin-top:4px;accent-color:var(--rose-deep)}
+.checkbox-group p{color:var(--body);line-height:1.6;font-size:.88rem}
+.checkbox-group a{color:var(--rose-deep);text-decoration:none;font-weight:600;border-bottom:1px solid var(--taupe)}
+.checkbox-group a:hover{border-color:var(--rose-deep)}
+
+.submit-btn{
+  font-family:var(--sans);background:var(--ink);color:var(--ivory);border:none;border-radius:999px;
+  padding:16px 20px;font-size:1rem;font-weight:600;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;gap:10px;width:100%;transition:background-color .25s,transform .25s;
+}
+.submit-btn:hover{background:var(--rose-deep);transform:translateY(-2px)}
+.submit-btn:active{transform:translateY(0)}
+
+.form-foot-note{text-align:center;font-size:.82rem;color:var(--muted);margin-top:16px;line-height:1.6}
+
+/* ---------- Responsive ---------- */
+@media (max-width:768px){
+  body{flex-direction:column}
+  .navbar{position:sticky;top:0;width:100%;height:auto;padding:16px 20px;z-index:20}
+  .navbar-brand{margin-bottom:0;padding-bottom:0;border-bottom:none}
+  .rail-toggle{display:grid;place-items:center;position:absolute;right:18px;top:20px;width:40px;height:40px;border-radius:10px;background:rgba(201,123,99,.18);color:var(--ivory);border:none;font-size:1rem;cursor:pointer}
+  .navbar-nav{display:none;margin-top:18px;padding-top:16px;border-top:1px solid rgba(251,243,236,.14)}
+  .navbar.open .navbar-nav{display:flex}
+  .rail-note{display:none}
+  .navbar.open .rail-note{display:block}
+  .main-content{margin-left:0;max-width:100%;padding:28px 20px 48px}
+  .form-row{flex-direction:column;gap:0}
+  .form-section{padding:22px 20px}
+}
+</style>
+</head>
+<body>
+<nav class="navbar" id="rail">
+  <a href="index.html" class="navbar-brand">
+    <i class="fas fa-sun navbar-logo"></i>
+    <div>
+      <div class="navbar-title">UmeedBot</div>
+      <div class="navbar-subtitle">Employee Wellness Assistant</div>
+    </div>
+  </a>
+  <button class="rail-toggle" id="railToggle" aria-label="Show menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+  <div class="navbar-nav">
+    <a href="dashboard.html" class="nav-link"><i class="fas fa-home"></i><span>Dashboard</span></a>
+    <a href="quiz.html" class="nav-link"><i class="fas fa-clipboard-list"></i><span>Stress Assessment</span></a>
+    <a href="counselling.html" class="nav-link active"><i class="fas fa-calendar-check"></i><span>Professional Support</span></a>
+    <a href="resources.html" class="nav-link"><i class="fas fa-book-open"></i><span>Wellness Resources</span></a>
+    <a href="aichat.html" class="nav-link"><i class="fas fa-robot"></i><span>AI Support Chat</span></a>
+  </div>
+  <div class="rail-note">
+    <strong>Need help right now?</strong>
+    Tele-MANAS is free and open 24 hours — <span>14416</span>
+  </div>
+</nav>
+
+<div class="main-content">
+  <div class="form-page">
+
+    <a href="counselling.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to counsellors</a>
+
+    <span class="eyebrow">One step away</span>
+    <h2 class="page-title">Let's get your <em>session</em> booked.</h2>
+    <p class="page-subtitle">A few details help your counsellor prepare — nothing here is shared with your employer, and you can share as little or as much as you're comfortable with.</p>
+
+    <div class="selection-note" id="selectionNote">
+      <i class="fas fa-user-check"></i>
+      <span>Booking with <b id="selCounsellor"></b><span id="selSlotWrap"> · <b id="selSlot"></b></span></span>
+    </div>
+
+    <form id="counselingForm">
+      <div class="form-section">
+        <h3><i class="fas fa-user"></i> Personal information</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Full name</label>
+            <input type="text" id="name" placeholder="Enter your full name" required>
+          </div>
+          <div class="form-group">
+            <label for="age">Age</label>
+            <input type="number" id="age" placeholder="Enter your age" min="1" max="120" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="gender">Gender</label>
+            <select id="gender" required>
+              <option value="" disabled selected>Select your gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+              <option value="prefer-not-to-say">Prefer not to say</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="maritalStatus">Marital status</label>
+            <select id="maritalStatus" required>
+              <option value="" disabled selected>Select your marital status</option>
+              <option value="single">Single</option>
+              <option value="married">Married</option>
+              <option value="divorced">Divorced</option>
+              <option value="widowed">Widowed</option>
+              <option value="separated">Separated</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="profession">Profession</label>
+          <input type="text" id="profession" placeholder="Enter your profession" required>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3><i class="fas fa-address-book"></i> Contact details</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="Email">Email address</label>
+            <input type="email" id="Email" placeholder="your.email@example.com" required>
+          </div>
+          <div class="form-group">
+            <label for="Mobile">Mobile number</label>
+            <input type="tel" id="Mobile" placeholder="+91 9999*****9" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3><i class="fas fa-calendar-alt"></i> Appointment details</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="appointmentDate">Appointment date &amp; time</label>
+            <input type="datetime-local" id="appointmentDate" required>
+          </div>
+          <div class="form-group">
+            <label for="modeOfAppointment">Mode of appointment</label>
+            <select id="modeOfAppointment" required>
+              <option value="" disabled selected>Select appointment type</option>
+              <option value="online">Online session (video call)</option>
+              <option value="offline">In-person session</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3><i class="fas fa-comment-dots"></i> Anything else</h3>
+        <div class="form-group">
+          <label for="anythingToSay">Anything you'd like to share (optional)</label>
+          <textarea id="anythingToSay" rows="4" placeholder="Share any specific concerns, preferences, or questions you might have..."></textarea>
+        </div>
+      </div>
+
+      <div class="checkbox-group">
+        <input type="checkbox" name="t&c" id="t&c" required>
+        <p>I agree to the <a href="#">Terms and Conditions</a> and <a href="#">Privacy Policy</a>. I understand that my information will be kept confidential and used solely for scheduling purposes.</p>
+      </div>
+
+      <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Submit your request</button>
+      <p class="form-foot-note">Our team usually confirms within 48 hours. You'll get the joining link by email.</p>
+    </form>
+  </div>
+</div>
+
+<script>
+/* Sidebar toggle (shared pattern) */
+var rail=document.getElementById('rail'),railToggle=document.getElementById('railToggle');
+railToggle.addEventListener('click',function(){
+  var open=rail.classList.toggle('open');
+  railToggle.setAttribute('aria-expanded',open);
+  railToggle.innerHTML=open?'<i class="fas fa-xmark"></i>':'<i class="fas fa-bars"></i>';
+});
+
+/* Show which counsellor/slot was picked on the previous page, if any (additive, non-breaking) */
+(function(){
+  var params=new URLSearchParams(window.location.search);
+  var counsellor=params.get('counsellor');
+  var slot=params.get('slot');
+  if(counsellor){
+    document.getElementById('selCounsellor').textContent=counsellor;
+    document.getElementById('selSlotWrap').style.display=slot?'inline':'none';
+    if(slot) document.getElementById('selSlot').textContent=slot;
+    document.getElementById('selectionNote').classList.add('show');
+  }
+})();
+
+/* Original form handling — unchanged */
+document.getElementById('counselingForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const name = document.getElementById('name').value;
+    const age = document.getElementById('age').value;
+    const gender = document.getElementById('gender').value;
+    const maritalStatus = document.getElementById('maritalStatus').value;
+    const profession = document.getElementById('profession').value;
+    const email = document.getElementById('Email').value;
+    const mobile = document.getElementById('Mobile').value;
+    const date = document.getElementById('appointmentDate').value;
+    const mode = document.getElementById('modeOfAppointment').value;
+    const terms = document.getElementById('t&c').checked;
+
+    if (!name || !age || !gender || !maritalStatus || !profession || !email || !mobile || !date || !mode || !terms) {
+        alert('Please fill in all required fields and agree to the terms.');
+        return;
+    }
+
+    alert('Thank you for your submission! Our team will contact you shortly to confirm your appointment.');
+    this.reset();
+    document.getElementById('selectionNote').classList.remove('show');
+});
+</script>
+</body>
+</html>

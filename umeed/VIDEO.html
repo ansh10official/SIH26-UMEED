@@ -1,0 +1,751 @@
+<!-- Video calling ome.tv -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Umeed — Video Support</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>
+:root{
+  --ink:#241934;
+  --ink-2:#382650;
+  --rose:#C97B63;
+  --rose-deep:#AD5F49;
+  --marigold:#E8A33D;
+  --ivory:#FBF3EC;
+  --ivory-deep:#F3E3D3;
+  --mauve:#6B5470;
+  --taupe:#E7D3C2;
+  --body:#4A3F4E;
+  --muted:#8B7D8E;
+  --sage:#6F8F5B;
+  --paper:#FFFFFF;
+  --display:'Fraunces',Georgia,serif;
+  --sans:'Sora','Segoe UI',Tahoma,sans-serif;
+  --rail:270px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--ivory)}
+body{font-family:var(--sans);color:var(--body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button,input{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--rose);outline-offset:3px;border-radius:8px}
+
+.navbar{
+  width:var(--rail);background:var(--ink);color:var(--ivory);padding:32px 22px 24px;
+  display:flex;flex-direction:column;height:100vh;position:fixed;left:0;top:0;
+  overflow-y:auto;z-index:50
+}
+.navbar-brand{display:flex;align-items:center;gap:13px;text-decoration:none;padding-bottom:26px;margin-bottom:26px;border-bottom:1px solid rgba(251,243,236,.14)}
+.navbar-logo{font-size:18px;color:var(--ink);background:linear-gradient(140deg,var(--marigold),var(--rose));width:44px;height:44px;border-radius:15px 15px 15px 4px;display:grid;place-items:center;flex-shrink:0}
+.navbar-title{font-family:var(--display);font-style:italic;font-size:1.55rem;font-weight:500;line-height:1.1}
+.navbar-subtitle{font-size:.72rem;color:var(--rose);margin-top:3px}
+.navbar-nav{display:flex;flex-direction:column;gap:3px;flex:1}
+.nav-link{color:rgba(251,243,236,.72);text-decoration:none;font-size:.93rem;padding:11px 14px;border-radius:11px;display:flex;align-items:center;gap:13px;transition:.2s}
+.nav-link i{width:18px;text-align:center;font-size:.92rem;opacity:.75}
+.nav-link:hover{background:rgba(201,123,99,.16);color:var(--ivory)}
+.nav-link.active{background:var(--rose);color:var(--ink);font-weight:600}
+.nav-link.active i{opacity:1;color:var(--ink)}
+.rail-note{margin-top:26px;padding:17px;border-radius:14px;background:rgba(232,163,61,.12);border:1px solid rgba(232,163,61,.22);font-size:.79rem;line-height:1.55;color:rgba(251,243,236,.85)}
+.rail-note strong{display:block;color:var(--ivory);font-weight:600;margin-bottom:3px}
+.rail-note span{color:var(--marigold);font-weight:600}
+.rail-toggle{display:none}
+
+.main-content{margin-left:var(--rail);min-height:100vh;padding:32px 40px;display:flex;flex-direction:column}
+.topbar{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:22px;flex-wrap:wrap}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.85rem;color:var(--rose-deep);margin-bottom:10px;font-weight:500}
+.eyebrow:before{content:'';width:22px;height:1px;background:var(--marigold)}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(1.7rem,2.6vw,2.2rem);letter-spacing:-.02em;color:var(--ink)}
+.subtitle{font-size:.94rem;color:var(--muted);margin-top:6px;max-width:52ch;line-height:1.6}
+.status-pill{display:flex;align-items:center;gap:8px;background:var(--ink);color:var(--ivory);border-radius:999px;padding:9px 16px 9px 12px;font-size:.82rem;white-space:nowrap}
+.status-dot{width:7px;height:7px;background:var(--sage);border-radius:50%;animation:pulse 2s infinite}
+.status-dot.offline{background:var(--rose)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.call-shell{background:var(--paper);border-radius:26px;box-shadow:0 30px 60px -34px rgba(36,25,52,.35);overflow:hidden;display:flex;flex-direction:column;min-height:calc(100vh - 170px)}
+.call-stage{
+  position:relative;flex:1;min-height:540px;background:#17121f;overflow:hidden;
+  padding:18px;display:flex;align-items:center;justify-content:center
+}
+.remote-wrap{
+  width:100%;height:100%;min-height:500px;background:#211b29;border-radius:20px;
+  overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center
+}
+.remote-wrap video{width:100%;height:100%;object-fit:cover;background:#211b29}
+.video-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(251,243,236,.72);gap:12px;background:radial-gradient(circle at center, #3b3043, #211b29 55%, #17121f)}
+.avatar{width:76px;height:76px;border-radius:26px 26px 26px 8px;background:linear-gradient(140deg,var(--marigold),var(--rose));display:grid;place-items:center;color:var(--ink);font-family:var(--display);font-size:2rem;font-style:italic}
+.placeholder-text{text-align:center;font-size:.85rem;color:rgba(251,243,236,.62)}
+.video-label{
+  position:absolute;left:16px;bottom:16px;padding:8px 12px;border-radius:10px;
+  background:rgba(36,25,52,.78);backdrop-filter:blur(10px);color:var(--ivory);font-size:.78rem
+}
+.remote-actions{position:absolute;right:16px;top:16px;display:flex;gap:8px;z-index:5}
+.stage-btn,.mini-btn{
+  border:1px solid rgba(251,243,236,.16);background:rgba(36,25,52,.78);color:var(--ivory);
+  width:42px;height:42px;border-radius:12px;display:grid;place-items:center;backdrop-filter:blur(10px);transition:.2s
+}
+.stage-btn:hover,.mini-btn:hover{background:var(--rose-deep)}
+.local-wrap{
+  position:absolute;right:34px;bottom:34px;width:min(28%,310px);aspect-ratio:16/10;
+  min-width:190px;border:3px solid rgba(251,243,236,.92);border-radius:18px;overflow:hidden;
+  background:#211b29;box-shadow:0 14px 35px rgba(0,0,0,.35);z-index:8
+}
+.local-wrap video{width:100%;height:100%;object-fit:cover}
+.local-label{position:absolute;left:9px;bottom:8px;background:rgba(36,25,52,.72);color:var(--ivory);font-size:.68rem;padding:5px 8px;border-radius:8px}
+.video-off-cover{display:none;position:absolute;inset:0;background:#211b29;align-items:center;justify-content:center;color:var(--ivory);font-size:.75rem}
+.video-off-cover.show{display:flex}
+
+.connection-banner{
+  position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:10;
+  padding:9px 14px;border-radius:999px;background:rgba(36,25,52,.82);color:var(--ivory);
+  font-size:.75rem;backdrop-filter:blur(10px);max-width:calc(100% - 40px);text-align:center
+}
+.timer{position:absolute;left:18px;top:18px;z-index:9;color:var(--ivory);font-size:.75rem;background:rgba(36,25,52,.68);padding:8px 11px;border-radius:10px}
+
+.controls-area{padding:18px 22px;background:var(--paper);border-top:1px solid var(--taupe)}
+.control-row{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap}
+.call-control{
+  min-width:52px;height:48px;border:1px solid var(--taupe);border-radius:14px;
+  background:var(--ivory);color:var(--ink);display:flex;align-items:center;justify-content:center;
+  gap:8px;padding:0 15px;transition:.2s;font-size:.8rem;font-weight:600
+}
+.call-control:hover{border-color:var(--rose);background:var(--ivory-deep)}
+.call-control.active{background:var(--ink);color:var(--ivory);border-color:var(--ink)}
+.call-control.danger{background:var(--rose-deep);color:var(--ivory);border-color:var(--rose-deep);min-width:118px}
+.call-control:disabled{opacity:.45;cursor:not-allowed}
+.control-hint{margin-top:10px;text-align:center;color:var(--muted);font-size:.7rem}
+
+.meeting-panel{margin-top:16px;background:var(--ivory-deep);border:1px solid var(--taupe);border-radius:18px;padding:14px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.meeting-panel .info{flex:1;min-width:230px}
+.meeting-panel strong{display:block;color:var(--ink);font-size:.8rem;margin-bottom:4px}
+.meeting-panel span{font-size:.72rem;color:var(--muted);word-break:break-all}
+.copy-link{border:0;background:var(--ink);color:var(--ivory);padding:9px 14px;border-radius:10px;font-size:.74rem;font-weight:600}
+
+.toast{position:fixed;bottom:24px;left:calc(50% + var(--rail)/2);transform:translateX(-50%) translateY(100px);background:var(--ink);color:var(--ivory);padding:12px 20px;border-radius:12px;box-shadow:0 10px 30px rgba(36,25,52,.3);z-index:1000;opacity:0;transition:.3s;font-size:.82rem;max-width:min(90vw,500px);text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.hidden{display:none!important}
+
+@media (max-width:900px){
+  .navbar{position:sticky;top:0;width:100%;height:auto;padding:16px 20px}
+  .navbar-brand{margin-bottom:0;padding-bottom:0;border-bottom:none}
+  .rail-toggle{display:grid;place-items:center;position:absolute;right:18px;top:20px;width:40px;height:40px;border-radius:10px;background:rgba(201,123,99,.18);color:var(--ivory);border:none}
+  .navbar-nav{display:none;margin-top:18px;padding-top:16px;border-top:1px solid rgba(251,243,236,.14)}
+  .navbar.open .navbar-nav{display:flex}
+  .rail-note{display:none}
+  .navbar.open .rail-note{display:block}
+  .main-content{margin-left:0;padding:20px}
+  .call-stage{min-height:440px}
+  .remote-wrap{min-height:400px}
+  .local-wrap{right:24px;bottom:24px;width:190px}
+  .toast{left:50%}
+}
+@media (max-width:600px){
+  .main-content{padding:14px}
+  .topbar{margin-bottom:14px}
+  .call-shell{min-height:calc(100vh - 145px);border-radius:20px}
+  .call-stage{min-height:400px;padding:8px}
+  .remote-wrap{min-height:360px;border-radius:15px}
+  .local-wrap{width:125px;min-width:125px;right:16px;bottom:16px;border-width:2px}
+  .remote-actions{right:10px;top:10px}
+  .stage-btn{width:38px;height:38px}
+  .timer{left:10px;top:10px}
+  .connection-banner{top:10px}
+  .call-control{height:46px;width:46px;min-width:46px;padding:0;border-radius:13px}
+  .call-control span{display:none}
+  .call-control.danger{width:auto;min-width:92px;padding:0 14px}
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar" id="rail">
+  <a href="index.html" class="navbar-brand">
+    <i class="fas fa-sun navbar-logo"></i>
+    <div>
+      <div class="navbar-title">Umeed</div>
+      <div class="navbar-subtitle">Employee Wellness Assistant</div>
+    </div>
+  </a>
+  <button class="rail-toggle" id="railToggle" aria-label="Show menu" aria-expanded="false">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="navbar-nav">
+    <a href="dashboard.html" class="nav-link"><i class="fas fa-home"></i><span>Dashboard</span></a>
+    <a href="quiz.html" class="nav-link"><i class="fas fa-clipboard-list"></i><span>Stress Assessment</span></a>
+    <a href="counselling.html" class="nav-link active"><i class="fas fa-video"></i><span>Professional Support</span></a>
+    <a href="resources.html" class="nav-link"><i class="fas fa-book-open"></i><span>Wellness Resources</span></a>
+    <a href="aichat.html" class="nav-link"><i class="fas fa-robot"></i><span>AI Support Chat</span></a>
+  </div>
+  <div class="rail-note">
+    <strong>Need help right now?</strong>
+    Tele-MANAS is free and open 24 hours — <span>14416</span>
+  </div>
+</nav>
+
+<main class="main-content">
+  <div class="topbar">
+    <div>
+      <span class="eyebrow">Private video support</span>
+      <h1>Talk to someone, face to face</h1>
+      <p class="subtitle">A calm, simple video room for connecting with your counsellor. Your camera and microphone stay under your control.</p>
+    </div>
+    <div class="status-pill">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Ready to connect</span>
+    </div>
+  </div>
+
+  <section class="call-shell" id="callShell">
+    <div class="call-stage" id="callStage">
+      <div class="connection-banner" id="connectionBanner">Click “Start meeting” to enable your camera and microphone.</div>
+      <div class="timer hidden" id="callTimer">00:00</div>
+
+      <div class="remote-wrap" id="remoteWrap">
+        <video id="remoteVideo" autoplay playsinline></video>
+        <div class="video-placeholder" id="remotePlaceholder">
+          <div class="avatar"><i class="fas fa-user"></i></div>
+          <div class="placeholder-text" id="remotePlaceholderText">Waiting for your counsellor to join</div>
+        </div>
+        <div class="video-label" id="remoteLabel">Counsellor</div>
+        <div class="remote-actions">
+          <button class="stage-btn" id="remoteFullscreenBtn" title="Fullscreen remote video" aria-label="Fullscreen remote video">
+            <i class="fas fa-expand"></i>
+          </button>
+          <button class="stage-btn" id="pipBtn" title="Picture in picture" aria-label="Picture in picture">
+            <i class="fas fa-clone"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="local-wrap" id="localWrap">
+        <video id="localVideo" autoplay muted playsinline></video>
+        <div class="video-off-cover" id="videoOffCover"><i class="fas fa-video-slash"></i>&nbsp; Camera off</div>
+        <div class="local-label">You</div>
+      </div>
+    </div>
+
+    <div class="controls-area">
+      <div class="control-row">
+        <button class="call-control" id="startButton" title="Start or join meeting">
+          <i class="fas fa-video"></i><span>Start meeting</span>
+        </button>
+        <button class="call-control" id="micToggleBtn" disabled title="Mute microphone">
+          <i class="fas fa-microphone"></i><span>Mute</span>
+        </button>
+        <button class="call-control" id="videoToggleBtn" disabled title="Turn camera off">
+          <i class="fas fa-video"></i><span>Camera</span>
+        </button>
+        <button class="call-control" id="screenShareBtn" disabled title="Share your screen">
+          <i class="fas fa-desktop"></i><span>Share screen</span>
+        </button>
+        <button class="call-control" id="flipBtn" disabled title="Switch camera">
+          <i class="fas fa-camera-rotate"></i><span>Switch camera</span>
+        </button>
+        <button class="call-control" id="fullscreenBtn" disabled title="Fullscreen call">
+          <i class="fas fa-expand"></i><span>Fullscreen</span>
+        </button>
+        <button class="call-control danger" id="endCallBtn" disabled title="End meeting">
+          <i class="fas fa-phone-slash"></i><span>End meeting</span>
+        </button>
+      </div>
+      <div class="control-hint" id="controlHint">Camera and microphone controls will appear after you start.</div>
+
+      <div class="meeting-panel hidden" id="linkSection">
+        <div class="info">
+          <strong>Invite link</strong>
+          <span id="meetingLinkText"></span>
+        </div>
+        <button class="copy-link" id="copyLinkBtn"><i class="fas fa-copy"></i> Copy link</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const localVideo = document.getElementById('localVideo');
+const remoteVideo = document.getElementById('remoteVideo');
+const remotePlaceholder = document.getElementById('remotePlaceholder');
+const remotePlaceholderText = document.getElementById('remotePlaceholderText');
+const videoOffCover = document.getElementById('videoOffCover');
+const statusText = document.getElementById('statusText');
+const statusDot = document.getElementById('statusDot');
+const connectionBanner = document.getElementById('connectionBanner');
+const startButton = document.getElementById('startButton');
+const micToggleBtn = document.getElementById('micToggleBtn');
+const videoToggleBtn = document.getElementById('videoToggleBtn');
+const screenShareBtn = document.getElementById('screenShareBtn');
+const flipBtn = document.getElementById('flipBtn');
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+const remoteFullscreenBtn = document.getElementById('remoteFullscreenBtn');
+const pipBtn = document.getElementById('pipBtn');
+const endCallBtn = document.getElementById('endCallBtn');
+const copyLinkBtn = document.getElementById('copyLinkBtn');
+const linkSection = document.getElementById('linkSection');
+const meetingLinkText = document.getElementById('meetingLinkText');
+const callTimer = document.getElementById('callTimer');
+const callShell = document.getElementById('callShell');
+const callStage = document.getElementById('callStage');
+const controlHint = document.getElementById('controlHint');
+const toast = document.getElementById('toast');
+const rail = document.getElementById('rail');
+const railToggle = document.getElementById('railToggle');
+
+let peer = null;
+let localStream = null;
+let currentCall = null;
+let screenStream = null;
+let cameraFacingMode = 'user';
+let timerInterval = null;
+let callStartedAt = null;
+
+const urlParams = new URLSearchParams(window.location.search);
+const remotePeerId = urlParams.get('room');
+
+railToggle.addEventListener('click', function(){
+  const open = rail.classList.toggle('open');
+  railToggle.setAttribute('aria-expanded', open);
+  railToggle.innerHTML = open ? '<i class="fas fa-xmark"></i>' : '<i class="fas fa-bars"></i>';
+});
+
+function setStatus(text, online = true){
+  statusText.textContent = text;
+  statusDot.classList.toggle('offline', !online);
+  connectionBanner.textContent = text;
+}
+
+function showToast(message){
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => toast.classList.remove('show'), 2800);
+}
+
+function formatTime(seconds){
+  const m = String(Math.floor(seconds / 60)).padStart(2,'0');
+  const s = String(seconds % 60).padStart(2,'0');
+  return m + ':' + s;
+}
+
+function startTimer(){
+  if(timerInterval) return;
+  callStartedAt = Date.now();
+  callTimer.classList.remove('hidden');
+  timerInterval = setInterval(() => {
+    callTimer.textContent = formatTime(Math.floor((Date.now() - callStartedAt) / 1000));
+  }, 1000);
+}
+
+function stopTimer(){
+  clearInterval(timerInterval);
+  timerInterval = null;
+  callTimer.classList.add('hidden');
+  callTimer.textContent = '00:00';
+}
+
+function setControls(disabled){
+  [micToggleBtn, videoToggleBtn, screenShareBtn, flipBtn, fullscreenBtn, endCallBtn].forEach(btn => btn.disabled = disabled);
+}
+
+function updateMediaButtons(){
+  const audio = localStream?.getAudioTracks?.()[0];
+  const video = localStream?.getVideoTracks?.()[0];
+
+  if(audio){
+    micToggleBtn.classList.toggle('active', !audio.enabled);
+    micToggleBtn.querySelector('i').className = audio.enabled ? 'fas fa-microphone' : 'fas fa-microphone-slash';
+    micToggleBtn.querySelector('span').textContent = audio.enabled ? 'Mute' : 'Unmute';
+  }
+
+  if(video){
+    videoToggleBtn.classList.toggle('active', !video.enabled);
+    videoToggleBtn.querySelector('i').className = video.enabled ? 'fas fa-video' : 'fas fa-video-slash';
+    videoToggleBtn.querySelector('span').textContent = video.enabled ? 'Camera' : 'Camera on';
+    videoOffCover.classList.toggle('show', !video.enabled);
+  }
+}
+
+function getPeerConnection(){
+  return currentCall?.peerConnection || null;
+}
+
+function replaceOutgoingVideoTrack(track){
+  const pc = getPeerConnection();
+  if(!pc) return false;
+  const sender = pc.getSenders().find(s => s.track && s.track.kind === 'video');
+  if(!sender) return false;
+  sender.replaceTrack(track);
+  return true;
+}
+
+async function startCallFlow(){
+  startButton.disabled = true;
+  setControls(true);
+  setStatus('Requesting camera and microphone...', true);
+
+  try{
+    localStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: cameraFacingMode },
+      audio: true
+    });
+
+    localVideo.srcObject = localStream;
+    updateMediaButtons();
+    setStatus('Camera and microphone ready. Connecting...', true);
+
+    if(remotePeerId){
+      startButton.querySelector('span').textContent = 'Joining…';
+      initializePeer(null);
+    }else{
+      initializePeer(generateRoomId());
+    }
+  }catch(error){
+    console.error(error);
+    setStatus('Could not access camera or microphone.', false);
+    connectionBanner.textContent = 'Please allow camera and microphone access, then try again.';
+    startButton.disabled = false;
+    startButton.querySelector('span').textContent = remotePeerId ? 'Join meeting' : 'Start meeting';
+    showToast('Camera/microphone permission is required.');
+  }
+}
+
+function initializePeer(id){
+  peer = new Peer(id, {
+    host: '0.peerjs.com',
+    port: 443,
+    secure: true
+  });
+
+  peer.on('open', peerId => {
+    setStatus(remotePeerId ? 'Connecting to counsellor…' : 'Meeting room created. Share the invite link.', true);
+
+    if(!remotePeerId){
+      displayShareLink(peerId);
+      connectionBanner.textContent = 'Meeting created. Share the invite link with your counsellor.';
+    }else{
+      connectToRemotePeer(remotePeerId);
+    }
+  });
+
+  peer.on('call', call => {
+    setStatus('Incoming call. Connecting securely…', true);
+    answerCall(call);
+  });
+
+  peer.on('error', err => {
+    console.error('PeerJS error:', err);
+    setStatus('Connection error: ' + err.type, false);
+    showToast('Connection error. Please try again.');
+    startButton.disabled = false;
+    startButton.querySelector('span').textContent = remotePeerId ? 'Join meeting' : 'Start meeting';
+    setControls(true);
+  });
+
+  peer.on('disconnected', () => {
+    setStatus('Signaling disconnected. Reconnecting…', false);
+    if(peer && !peer.destroyed) peer.reconnect();
+  });
+
+  peer.on('close', () => {
+    setStatus('Meeting ended.', false);
+  });
+}
+
+function connectToRemotePeer(targetPeerId){
+  if(!peer || !localStream) return;
+  setStatus('Calling counsellor…', true);
+  const call = peer.call(targetPeerId, localStream);
+  currentCall = call;
+  setupRemoteStream(call);
+}
+
+function answerCall(call){
+  if(!localStream){
+    setStatus('Waiting for local media…', false);
+    return;
+  }
+  currentCall = call;
+  call.answer(localStream);
+  setupRemoteStream(call);
+}
+
+function setupRemoteStream(call){
+  endCallBtn.disabled = false;
+
+  call.on('stream', remoteStream => {
+    remoteVideo.srcObject = remoteStream;
+    remotePlaceholder.classList.add('hidden');
+    setStatus('Connected with your counsellor.', true);
+    connectionBanner.textContent = 'Connected • Your call is private between participants.';
+    startTimer();
+    showToast('Call connected successfully.');
+    controlHint.textContent = 'Tip: use Share screen, Fullscreen, or Picture-in-picture during the call.';
+  });
+
+  call.on('close', () => {
+    setStatus('Your counsellor ended the call.', false);
+    showToast('The call has ended.');
+    endCallCleanup();
+  });
+
+  call.on('error', err => {
+    console.error('Call error:', err);
+    setStatus('Call connection error.', false);
+    showToast('The video connection was interrupted.');
+    endCallCleanup();
+  });
+}
+
+function toggleAudio(){
+  const track = localStream?.getAudioTracks?.()[0];
+  if(!track) return;
+  track.enabled = !track.enabled;
+  updateMediaButtons();
+  showToast(track.enabled ? 'Microphone on' : 'Microphone muted');
+}
+
+function toggleVideo(){
+  const track = localStream?.getVideoTracks?.()[0];
+  if(!track) return;
+  track.enabled = !track.enabled;
+  updateMediaButtons();
+  showToast(track.enabled ? 'Camera on' : 'Camera off');
+}
+
+async function toggleScreenShare(){
+  if(!localStream) return;
+
+  if(screenStream){
+    stopScreenShare();
+    return;
+  }
+
+  if(!navigator.mediaDevices.getDisplayMedia){
+    showToast('Screen sharing is not supported in this browser.');
+    return;
+  }
+
+  try{
+    screenStream = await navigator.mediaDevices.getDisplayMedia({
+      video: true,
+      audio: false
+    });
+
+    const screenTrack = screenStream.getVideoTracks()[0];
+    localVideo.srcObject = screenStream;
+    replaceOutgoingVideoTrack(screenTrack);
+
+    screenTrack.addEventListener('ended', stopScreenShare);
+
+    screenShareBtn.classList.add('active');
+    screenShareBtn.querySelector('i').className = 'fas fa-stop';
+    screenShareBtn.querySelector('span').textContent = 'Stop sharing';
+    showToast('Screen sharing started.');
+  }catch(error){
+    console.error('Screen share error:', error);
+    showToast('Screen sharing was cancelled.');
+  }
+}
+
+function stopScreenShare(){
+  if(!screenStream) return;
+
+  screenStream.getTracks().forEach(track => track.stop());
+  screenStream = null;
+
+  const cameraTrack = localStream?.getVideoTracks?.()[0];
+  if(cameraTrack){
+    localVideo.srcObject = localStream;
+    replaceOutgoingVideoTrack(cameraTrack);
+  }
+
+  screenShareBtn.classList.remove('active');
+  screenShareBtn.querySelector('i').className = 'fas fa-desktop';
+  screenShareBtn.querySelector('span').textContent = 'Share screen';
+  showToast('Screen sharing stopped.');
+}
+
+async function switchCamera(){
+  if(!localStream) return;
+
+  cameraFacingMode = cameraFacingMode === 'user' ? 'environment' : 'user';
+
+  try{
+    const newStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: cameraFacingMode },
+      audio: false
+    });
+
+    const newTrack = newStream.getVideoTracks()[0];
+    const oldTrack = localStream.getVideoTracks()[0];
+
+    replaceOutgoingVideoTrack(newTrack);
+
+    localStream.removeTrack(oldTrack);
+    localStream.addTrack(newTrack);
+    oldTrack.stop();
+
+    if(!screenStream) localVideo.srcObject = localStream;
+    updateMediaButtons();
+    showToast(cameraFacingMode === 'user' ? 'Front camera selected' : 'Rear camera selected');
+  }catch(error){
+    cameraFacingMode = cameraFacingMode === 'user' ? 'environment' : 'user';
+    console.error(error);
+    showToast('Could not switch camera.');
+  }
+}
+
+async function enterFullscreen(element){
+  try{
+    if(document.fullscreenElement){
+      await document.exitFullscreen();
+      return;
+    }
+    await element.requestFullscreen();
+  }catch(error){
+    console.error('Fullscreen error:', error);
+    showToast('Fullscreen is not available in this browser.');
+  }
+}
+
+async function pictureInPicture(){
+  try{
+    if(!remoteVideo.srcObject){
+      showToast('Picture-in-picture is available after the call connects.');
+      return;
+    }
+    if(document.pictureInPictureElement){
+      await document.exitPictureInPicture();
+    }else if(document.pictureInPictureEnabled && remoteVideo.requestPictureInPicture){
+      await remoteVideo.requestPictureInPicture();
+    }else{
+      showToast('Picture-in-picture is not supported in this browser.');
+    }
+  }catch(error){
+    console.error(error);
+    showToast('Picture-in-picture could not be started.');
+  }
+}
+
+async function endCall(){
+  showToast('Ending meeting…');
+
+  if(screenStream) stopScreenShare();
+
+  if(currentCall){
+    try{ currentCall.close(); }catch(e){}
+  }
+
+  endCallCleanup();
+}
+
+function endCallCleanup(){
+  stopTimer();
+
+  if(localStream){
+    localStream.getTracks().forEach(track => track.stop());
+    localStream = null;
+  }
+
+  if(screenStream){
+    screenStream.getTracks().forEach(track => track.stop());
+    screenStream = null;
+  }
+
+  localVideo.srcObject = null;
+  remoteVideo.srcObject = null;
+  remotePlaceholder.classList.remove('hidden');
+  remotePlaceholderText.textContent = 'Waiting for your counsellor to join';
+  videoOffCover.classList.remove('show');
+
+  if(peer){
+    try{ peer.destroy(); }catch(e){}
+    peer = null;
+  }
+
+  currentCall = null;
+  startButton.disabled = false;
+  startButton.querySelector('span').textContent = remotePeerId ? 'Join meeting' : 'Start meeting';
+  setControls(true);
+  linkSection.classList.add('hidden');
+  screenShareBtn.classList.remove('active');
+  screenShareBtn.querySelector('i').className = 'fas fa-desktop';
+  screenShareBtn.querySelector('span').textContent = 'Share screen';
+  setStatus('Meeting ended. Ready for a new call.', false);
+  controlHint.textContent = 'Camera and microphone controls will appear after you start.';
+}
+
+function generateRoomId(){
+  return 'umeed-' + Math.random().toString(36).substring(2, 7);
+}
+
+function displayShareLink(peerId){
+  const link = window.location.origin + window.location.pathname + '?room=' + encodeURIComponent(peerId);
+  meetingLinkText.textContent = link;
+  linkSection.classList.remove('hidden');
+}
+
+async function copyLink(){
+  const text = meetingLinkText.textContent;
+  try{
+    await navigator.clipboard.writeText(text);
+    showToast('Meeting link copied to clipboard.');
+  }catch(error){
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.style.position = 'fixed';
+    area.style.opacity = '0';
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand('copy');
+    area.remove();
+    showToast('Meeting link copied to clipboard.');
+  }
+}
+
+startButton.addEventListener('click', startCallFlow);
+micToggleBtn.addEventListener('click', toggleAudio);
+videoToggleBtn.addEventListener('click', toggleVideo);
+screenShareBtn.addEventListener('click', toggleScreenShare);
+flipBtn.addEventListener('click', switchCamera);
+fullscreenBtn.addEventListener('click', () => enterFullscreen(callShell));
+remoteFullscreenBtn.addEventListener('click', () => enterFullscreen(remoteWrap));
+pipBtn.addEventListener('click', pictureInPicture);
+endCallBtn.addEventListener('click', endCall);
+copyLinkBtn.addEventListener('click', copyLink);
+
+document.addEventListener('keydown', event => {
+  if(event.target.matches('input, textarea, button, select')) return;
+  if(event.key.toLowerCase() === 'm' && !micToggleBtn.disabled) toggleAudio();
+  if(event.key.toLowerCase() === 'v' && !videoToggleBtn.disabled) toggleVideo();
+  if(event.key.toLowerCase() === 'f' && !fullscreenBtn.disabled) enterFullscreen(callShell);
+  if(event.key === 'Escape' && document.fullscreenElement) document.exitFullscreen();
+});
+
+window.addEventListener('beforeunload', () => {
+  if(screenStream) screenStream.getTracks().forEach(track => track.stop());
+  if(localStream) localStream.getTracks().forEach(track => track.stop());
+  if(peer) peer.destroy();
+});
+
+window.onload = () => {
+  setControls(true);
+
+  if(remotePeerId){
+    startButton.querySelector('span').textContent = 'Join meeting';
+    setStatus('Ready to join your counsellor’s room.', true);
+    connectionBanner.textContent = 'You have been invited to a private Umeed video room.';
+  }else{
+    setStatus('Ready to start a private meeting.', true);
+    connectionBanner.textContent = 'Click “Start meeting” to enable your camera and microphone.';
+  }
+};
+</script>
+</body>
+</html>

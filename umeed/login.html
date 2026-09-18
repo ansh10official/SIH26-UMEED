@@ -1,0 +1,267 @@
+<!-- LOGIN CODE WORKING AND FIXED -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — UmeedBot</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,500&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#241934;
+  --ink-2:#382650;
+  --rose:#C97B63;
+  --rose-deep:#AD5F49;
+  --marigold:#E8A33D;
+  --ivory:#FBF3EC;
+  --ivory-deep:#F3E3D3;
+  --mauve:#6B5470;
+  --taupe:#E7D3C2;
+  --body:#4A3F4E;
+  --muted:#8B7D8E;
+  --sage:#6F8F5B;
+  --paper:#FFFFFF;
+  --display:'Fraunces',Georgia,serif;
+  --sans:'Sora','Segoe UI',Tahoma,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--ivory);color:var(--body);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--rose);outline-offset:3px;border-radius:6px}
+
+/* ---------- Split layout ---------- */
+.side{flex:1 1 46%;background:var(--ink);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:48px 52px;min-height:100vh}
+.side-decor{position:absolute;inset:0;pointer-events:none;z-index:0}
+.side-decor svg{position:absolute}
+.brand{display:flex;align-items:center;gap:13px;text-decoration:none;position:relative;z-index:1}
+.brand-logo{font-size:18px;color:var(--ink);background:linear-gradient(140deg,var(--marigold),var(--rose));width:44px;height:44px;border-radius:15px 15px 15px 4px;display:grid;place-items:center;flex-shrink:0}
+.brand-title{font-family:var(--display);font-style:italic;font-size:1.55rem;font-weight:500;color:var(--ivory);line-height:1.1}
+.brand-subtitle{font-size:.72rem;color:var(--rose);margin-top:3px}
+
+.side-copy{position:relative;z-index:1;max-width:30ch}
+.side-copy .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.85rem;color:var(--marigold);margin-bottom:18px;font-weight:500}
+.side-copy .eyebrow::before{content:'';width:22px;height:1px;background:var(--marigold)}
+.side-copy h1{font-family:var(--display);font-weight:300;font-style:italic;font-size:clamp(1.9rem,3vw,2.6rem);line-height:1.2;color:var(--ivory);letter-spacing:-.01em}
+.side-quote{margin-top:34px;padding-top:26px;border-top:1px solid rgba(251,243,236,.14);font-size:.92rem;color:rgba(251,243,236,.72);line-height:1.7;max-width:36ch}
+.side-quote span{display:block;margin-top:10px;color:var(--marigold);font-size:.82rem}
+
+.side-photo{position:relative;z-index:1;border-radius:64% 36% 58% 42% / 46% 52% 48% 54%;overflow:hidden;height:230px;box-shadow:0 30px 60px -24px rgba(0,0,0,.5)}
+.side-photo img{width:100%;height:100%;object-fit:cover;filter:saturate(.92)}
+.side-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(200deg,rgba(36,25,52,.3),rgba(232,163,61,.12));mix-blend-mode:multiply}
+
+/* ---------- Form panel ---------- */
+.panel{flex:1 1 54%;display:flex;align-items:center;justify-content:center;padding:48px 32px;position:relative}
+.panel-decor{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.panel-decor svg{position:absolute}
+.card{width:100%;max-width:420px;position:relative;z-index:1}
+.card-head{margin-bottom:32px}
+.card-head .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:.83rem;color:var(--rose-deep);margin-bottom:14px;font-weight:500}
+.card-head .eyebrow::before{content:'';width:20px;height:1px;background:var(--marigold)}
+.card-head h2{font-family:var(--display);font-weight:400;font-size:clamp(1.9rem,3vw,2.4rem);letter-spacing:-.02em;color:var(--ink);margin-bottom:8px}
+.card-head p{font-size:.96rem;color:var(--muted);line-height:1.6}
+
+.field{margin-bottom:18px}
+.field.hidden{display:none}
+.field label{display:flex;align-items:center;gap:9px;font-size:.86rem;color:var(--mauve);font-weight:500;margin-bottom:8px}
+.field label i{width:16px;text-align:center;color:var(--rose-deep);font-size:.82rem}
+.field input{width:100%;font-family:var(--sans);font-size:.96rem;color:var(--ink);background:var(--paper);border:1px solid var(--taupe);border-radius:14px;padding:14px 16px;transition:border-color .2s,box-shadow .2s}
+.field input::placeholder{color:#b7a9b9}
+.field input:focus{outline:none;border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,123,99,.14)}
+
+.btn-primary{width:100%;font-family:var(--sans);font-size:.97rem;font-weight:600;border-radius:999px;height:54px;border:none;cursor:pointer;background:var(--ink);color:var(--ivory);transition:background-color .25s,transform .25s;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px}
+.btn-primary:hover{background:var(--rose-deep);transform:translateY(-2px)}
+
+.divider{display:flex;align-items:center;gap:14px;margin:26px 0}
+.divider .line{flex:1;height:1px;background:var(--taupe)}
+.divider span{font-size:.8rem;color:var(--muted)}
+
+.google-wrap{display:flex;justify-content:center}
+#g_id_onload_box{width:100%}
+
+.toggle-row{text-align:center;margin-top:26px;font-size:.9rem;color:var(--muted)}
+.toggle-row button{background:none;border:none;font-family:var(--sans);font-size:.9rem;font-weight:600;color:var(--rose-deep);cursor:pointer;border-bottom:1px solid var(--marigold);padding-bottom:1px;margin-left:4px}
+
+.privacy-note{margin-top:30px;padding:15px 17px;border-radius:14px;background:var(--ivory-deep);border:1px solid var(--taupe);font-size:.79rem;line-height:1.55;color:var(--body);display:flex;gap:10px;align-items:flex-start}
+.privacy-note i{color:var(--rose-deep);margin-top:2px}
+
+/* ---------- Responsive ---------- */
+@media (max-width:960px){
+  .side{display:none}
+  .panel{padding:40px 22px;min-height:100vh}
+}
+@media (max-width:480px){
+  .card-head h2{font-size:1.7rem}
+}
+</style>
+</head>
+<body>
+
+<aside class="side">
+  <div class="side-decor" aria-hidden="true">
+    <svg width="320" height="320" style="top:-90px;right:-90px;opacity:.5" viewBox="0 0 200 200"><path fill="#E8A33D" opacity=".16" d="M45,-59C59,-48,71,-33,74,-16C77,1,71,20,60,35C49,50,32,61,13,66C-6,71,-27,70,-43,59C-59,48,-70,27,-72,5C-74,-17,-67,-41,-52,-54C-37,-67,-14,-70,5,-72C24,-74,31,-70,45,-59Z" transform="translate(100 100)"/></svg>
+    <svg width="260" height="260" style="bottom:-70px;left:-70px;opacity:.35" viewBox="0 0 200 200"><path fill="#C97B63" opacity=".2" d="M39,-52C51,-42,60,-29,64,-14C68,1,66,18,58,33C50,48,35,61,17,67C-1,73,-22,72,-38,62C-54,52,-65,33,-68,13C-71,-7,-66,-29,-53,-43C-40,-57,-20,-64,-1,-63C18,-63,27,-62,39,-52Z" transform="translate(100 100)"/></svg>
+  </div>
+
+  <a href="index.html" class="brand">
+    <i class="fas fa-sun brand-logo"></i>
+    <div>
+      <div class="brand-title">UmeedBot</div>
+      <div class="brand-subtitle">Employee Wellness Assistant</div>
+    </div>
+  </a>
+
+  <div class="side-copy">
+    <span class="eyebrow">Welcome back</span>
+    <h1>Some weeks ask more of you than you have to give. Let's start with an hour for you.</h1>
+    <p class="side-quote">"I put it off for months. The first session was the easiest part."<span>Aarav, engineering</span></p>
+  </div>
+
+  <figure class="side-photo">
+    <img src="https://images.unsplash.com/photo-1470137660724-c60a8b7fc53e?auto=format&fit=crop&w=900&q=80" alt="Two friends walking and talking together at golden hour">
+  </figure>
+</aside>
+
+<main class="panel">
+  <div class="panel-decor" aria-hidden="true">
+    <svg width="240" height="240" style="top:40px;right:-60px;opacity:.5" viewBox="0 0 200 200"><path fill="#6F8F5B" opacity=".1" d="M45,-59C59,-48,71,-33,74,-16C77,1,71,20,60,35C49,50,32,61,13,66C-6,71,-27,70,-43,59C-59,48,-70,27,-72,5C-74,-17,-67,-41,-52,-54C-37,-67,-14,-70,5,-72C24,-74,31,-70,45,-59Z" transform="translate(100 100)"/></svg>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="eyebrow">A quieter way to ask for help</span>
+      <h2 id="form-title">Login to your account</h2>
+      <p>No forms to explain yourself, no one at work finding out.</p>
+    </div>
+
+    <form id="auth-form">
+      <div id="name-field" class="field hidden">
+        <label for="fullname"><i class="fas fa-user"></i>Full name</label>
+        <input type="text" id="fullname" placeholder="Enter your full name" />
+      </div>
+
+      <div class="field">
+        <label for="email"><i class="fas fa-envelope"></i>Email address</label>
+        <input type="email" id="email" placeholder="Enter your email" required />
+      </div>
+
+      <div class="field">
+        <label for="password"><i class="fas fa-lock"></i>Password</label>
+        <input type="password" id="password" placeholder="Enter your password" required />
+      </div>
+
+      <button type="submit" class="btn-primary">
+        <i class="fas fa-sign-in-alt"></i>
+        <span id="submit-text">Login</span>
+      </button>
+    </form>
+
+    <div class="divider"><div class="line"></div><span>OR</span><div class="line"></div></div>
+
+    <div class="google-wrap">
+      <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-text="signin_with" data-size="large" data-logo_alignment="left" data-width="320"></div>
+    </div>
+
+    <p class="toggle-row">
+      <span id="toggle-text">Don't have an account?</span>
+      <button id="toggle-btn" type="button">Sign Up</button>
+    </p>
+
+    <div class="privacy-note">
+      <i class="fas fa-lock"></i>
+      <span>Sessions are confidential. Your manager and HR never see who you booked or what you said.</span>
+    </div>
+  </div>
+</main>
+
+<div id="g_id_onload" data-client_id="1048202385042-7i062mlgj5n2ku5pl2p8mo7o9j8j94kv.apps.googleusercontent.com"
+  data-context="signin" data-ux_mode="popup" data-callback="handleGoogleCredential" data-auto_prompt="false">
+</div>
+
+<script>
+  const SUPABASE_URL = "https://inazfbeskwidifegofww.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImluYXpmYmVza3dpZGlmZWdvZnd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg3Nzg5MDUsImV4cCI6MjA3NDM1NDkwNX0.dXYT9tSQnrNilOEKKkUXwiqO7Zdfg8FmqYh_9eLqN1I";
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const form = document.getElementById("auth-form");
+  const toggleBtn = document.getElementById("toggle-btn");
+  const formTitle = document.getElementById("form-title");
+  const nameField = document.getElementById("name-field");
+  const submitText = document.getElementById("submit-text");
+  const toggleText = document.getElementById("toggle-text");
+  let isLogin = true;
+
+  toggleBtn.addEventListener("click", () => {
+    isLogin = !isLogin;
+    formTitle.textContent = isLogin ? "Login to your account" : "Create your account";
+    submitText.textContent = isLogin ? "Login" : "Sign Up";
+    toggleBtn.textContent = isLogin ? "Sign Up" : "Login";
+    toggleText.textContent = isLogin ? "Don't have an account?" : "Already have an account?";
+    nameField.classList.toggle("hidden", isLogin);
+  });
+
+  // Email/password signup/login
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const fullname = document.getElementById("fullname").value.trim();
+
+    try {
+      if (isLogin) {
+        // LOGIN
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        });
+        if (error) throw error;
+      } else {
+        // SIGNUP
+        const { data, error } = await supabaseClient.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { full_name: fullname } // metadata stored in auth.users
+          }
+        });
+        if (error) throw error;
+      }
+
+      // Store locally & redirect
+      localStorage.setItem("user_email", email);
+      window.location.href = "dashboard.html";
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+  });
+
+  // Google login callback
+  async function handleGoogleCredential(response) {
+    try {
+      const jwt = response.credential;
+      const payload = JSON.parse(atob(jwt.split(".")[1]));
+      const email = payload.email;
+      const full_name = payload.name;
+      const google_id = payload.sub;
+      const avatar_url = payload.picture;
+
+      await supabaseClient.from("users").upsert(
+        { email, full_name, avatar_url, provider: "google", google_id },
+        { onConflict: "email" } // prevents duplicates
+      );
+
+      localStorage.setItem("user_email", email);
+      window.location.href = "dashboard.html";
+    } catch (err) {
+      console.error(err);
+      alert("Google login failed: " + err.message);
+    }
+  }
+</script>
+</body>
+</html>
